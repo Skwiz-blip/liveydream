@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Y Dream - Agence de communication à Lomé</title>
+<meta name="description" content="Agence N°1 à Lomé depuis 2013 : communication, influence, vidéo, identité, événementiel et régie publicitaire.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+
+<div data-lyd="header"></div>
+
+<main> 
+  <div class="dk">
+    <div class="w hero-wrap">
+      <section class="hero">
+        <h1 id="hero-title"></h1>
+        <p class="lead mu" id="hero-text"></p>
+        <div class="actions">
+          <a class="btn" href="contact.html">Audit gratuit</a>
+          <a class="btn o" href="campagnes.html">Voir nos campagnes</a>
+        </div>
+      </section>
+      <div class="hero-card" id="hero-card" aria-label="Photo équipe Live Y Dream"></div>
+    </div>
+  </div>
+  <div class="w"><div class="stats" id="stats"></div></div>
+ 
+  <section class="sec" style="padding-top:70px">
+    <div class="w">
+      <p class="k">Le diagnostic</p>
+      <div class="diag-head">
+        <h2 class="h2">Votre entreprise mérite mieux que l'invisibilité</h2>
+        <div>
+          <p>Vous avez un produit de qualité. Vous travaillez dur. Et pourtant vos concurrents captent les clients qui vous reviennent de droit pas parce qu'ils sont meilleurs, mais parce qu'ils sont <strong>plus visibles.</strong></p>
+          <a class="btn b" href="contact.html">Je veux dominer mon marché</a>
+        </div>
+      </div>
+      <div class="g4" id="problems"></div>
+    </div>
+  </section>
+ 
+  <section class="sec gy">
+    <div class="w">
+      <p class="k">Ce que nous faisons</p>
+      <h2 class="h2" style="margin-top:28px;max-width:520px">Un écosystème complet pour votre croissance</h2>
+      <div class="eco-head" style="margin-top:36px">
+        <p>Nous ne vendons pas du graphisme ou de la vidéo. Nous apportons des <strong>nouveaux clients, de la visibilité et de la crédibilité.</strong></p>
+        <a class="btn ob" href="services.html">Tout nos services</a>
+      </div>
+      <div id="services"></div>
+      <div class="promo" id="plan"></div>
+    </div>
+  </section> 
+  <section class="sec">
+    <div class="w">
+      <p class="k">Nos réalisations</p>
+      <div class="camp-head">
+        <h2 class="h2">Des campagnes qui ont <em>changé la donne</em></h2>
+      </div>
+      <a class="btn ob" href="campagnes.html" style="margin:-24px 0 40px">Voir tout le portfolio</a>
+      <div class="camps" id="camps"></div>
+    </div>
+  </section>
+  
+ 
+  <section class="sec">
+    <div class="w">
+      <p class="k">Ce que disent nos clients</p>
+      <h2 class="h2 testi-head">Des résultats qui parlent d'eux-mêmes</h2>
+      <div class="tg" id="testi"></div>
+    </div>
+  </section>
+ 
+  <section class="cta-s dk">
+    <div class="w">
+      <p class="k">Passez à l'action</p>
+      <h2 id="cta-title"></h2>
+      <p class="t mu" id="cta-text"></p>
+      <div class="actions">
+        <a class="btn" id="cta-wa" href="#">Audit gratuit sur whatsapp</a>
+        <a class="btn o" href="contact.html">Remplir le formulaire</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+
+<script src="js/cms.js"></script>
+<script>
+(function () {
+  var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
+  var s = CMS.get('settings');
+
+  CMS.mount('index.html');
+
+  $('hero-title').textContent = s.hero.title;
+  $('hero-text').textContent = s.hero.text;
+  if (s.hero.image) $('hero-card').innerHTML = '<img src="' + e(s.hero.image) + '" alt="Équipe Live Y Dream">';
+
+  $('stats').innerHTML = s.stats.map(function (x) {
+    return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
+  }).join('');
+
+  $('problems').innerHTML = CMS.get('problems').map(function (p, i) {
+    return '<div class="dg"><div><h4>' + e(p.t) + '</h4><p>' + e(p.d) + '</p></div><div class="no">0' + (i + 1) + '</div></div>';
+  }).join('');
+
+  $('services').innerHTML = CMS.get('services').map(function (x, i) {
+    return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
+      '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
+      '<a class="more" href="services.html#s' + (i + 1) + '">En savoir plus →</a></div>';
+  }).join('');
+
+  var pl = CMS.get('plan');
+  $('plan').innerHTML = '<div><p class="k">' + e(pl.k) + '</p><h3>' + e(pl.t) + '</h3><p>' + e(pl.d) + '</p>' +
+    '<a class="btn" href="services.html#tarifs">' + e(pl.cta) + '</a></div><div class="price">' + e(pl.price) + '</div>';
+
+  $('camps').innerHTML = CMS.get('campaigns').slice(0, 4).map(function (c) {
+    return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (c.img ? '<img src="' + e(c.img) + '" alt="' + e(c.t) + '">' : e(c.client)) + '</div>' +
+      '<p class="cat">' + e(c.cat) + '</p><h4>' + e(c.t) + '</h4></a>';
+  }).join('');
+
+  $('logos').innerHTML = CMS.get('clients').map(function (l) {
+    return '<div>' + (l ? '<img src="' + e(l) + '" alt="">' : '') + '</div>';
+  }).join('');
+
+  $('testi').innerHTML = CMS.get('testimonials').map(function (t) {
+    return '<div class="tc"><div class="stars">★★★★★</div><p>' + e(t.q) + '</p><div><strong>' + e(t.n) + '</strong><span>' + e(t.o) + '</span></div></div>';
+  }).join('');
+
+  var c = s.cta;
+  $('cta-title').textContent = c.title;
+  $('cta-text').innerHTML = c.text;
+  $('cta-wa').href = s.whatsapp;
+  $('cta-wa').target = '_blank';
+})();
+</script>
+</body>
+</html>

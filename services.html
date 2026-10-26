@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Services - Live Y Dream</title>
+<meta name="description" content="Community management, production vidéo et photo, identité visuelle, événementiel, régie publicitaire : l'écosystème complet de Live Y Dream.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div data-lyd="header"></div>
+
+<main>
+  <section class="dk phero">
+    <div class="w">
+      <span class="k">Nos services</span>
+      <h1>Un écosystème complet pour votre croissance</h1>
+      <p class="crumb"><a href="index.html">Accueil</a> / Services</p>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-bottom:70px">
+    <div class="w philo">
+      <div><p class="k">Notre philosophie</p><h2 class="h2" style="margin-top:22px">Nous ne vendons pas du graphisme</h2></div>
+      <div>
+        <p class="t">Nous vendons des <strong>nouveaux clients, de la visibilité et de la crédibilité.</strong> Chaque service est pensé pour vous faire gagner des parts de marché en Afrique de l'Ouest.</p>
+        <div class="philo-st" id="philo-st"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec gy" style="padding:70px 0 40px">
+    <div class="w" id="svc-list"></div>
+  </section>
+
+  <section class="sec" style="padding-top:70px"><div class="w" id="svc-detail"></div></section>
+
+  <section class="sec gy tarifs" id="tarifs">
+    <div class="w">
+      <p class="k">Service phare</p>
+      <h2 class="h2">Abonnement Communication Pour PME</h2>
+      <p class="intro" style="margin-top:12px">La solution tout-en-un pour les PME qui veulent une présence professionnelle sans gérer une équipe. Visibilité garantie, résultats mesurés, budget maîtrisé.</p>
+      <div class="plans" id="plans"></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="w">
+      <p class="k">Comment ça marche</p>
+      <h2 class="h2" style="margin-top:20px">De la vision à la victoire</h2>
+      <div class="steps" id="steps"></div>
+    </div>
+  </section>
+
+  <section class="cta-s dk">
+    <div class="w">
+      <p class="k">Prêt à commencer ?</p>
+      <h2 style="font-size:clamp(34px,5vw,64px)">Demandez votre devis gratuit</h2>
+      <p class="t mu">Réponse garantie sous 24h. L'audit est gratuit, sans engagement.</p>
+      <div class="actions">
+        <a class="btn" href="contact.html">Demander un devis</a>
+        <a class="btn o" id="wa" href="#" target="_blank" rel="noopener">WhatsApp direct</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+<script src="js/cms.js"></script>
+<script>
+(function () {
+  var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
+  var s = CMS.get('settings'), sv = CMS.get('services');
+  CMS.mount('services.html');
+  $('wa').href = s.whatsapp;
+
+  $('philo-st').innerHTML = [s.stats[1], s.stats[0], s.stats[2]].map(function (x) {
+    return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
+  }).join('');
+
+  $('svc-list').innerHTML = sv.map(function (x, i) {
+    return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
+      '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
+      '<a class="more" href="#s' + (i + 1) + '">Voir le détail →</a></div>';
+  }).join('') +
+  (function () {
+    var p = CMS.get('plan');
+    return '<div class="promo"><div><p class="k">' + e(p.k) + '</p><h3>' + e(p.t) + '</h3><p>' + e(p.d) + '</p><a class="btn" href="#tarifs">' + e(p.cta) + '</a></div><div class="price">' + e(p.price) + '</div></div>';
+  })();
+
+  $('svc-detail').innerHTML = sv.map(function (x, i) {
+    var n = '0' + (i + 1);
+    return '<article class="sd' + (i % 2 ? ' rev' : '') + '" id="s' + (i + 1) + '">' +
+      '<div class="sd-img ph-box">' + CMS.ph(x.img, x.imgLabel || x.cat, x.t) + '</div>' +
+      '<div><p class="sd-k"><b>' + n + '</b>' + e(x.cat) + '</p><h3>' + e(x.t) + '</h3><p class="dsc">' + e(x.long) + '</p>' +
+      '<div class="items">' + x.items.map(function (it) { return '<div><h5>' + e(it[0]) + '</h5><p>' + e(it[1]) + '</p></div>'; }).join('') + '</div>' +
+      (x.priceLabel ? '<p class="price-l">' + e(x.priceLabel) + '</p>' : '') +
+      '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' +
+      '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a></div></article>';
+  }).join('');
+
+  $('plans').innerHTML = CMS.get('plans').map(function (p) {
+    var pro = !!p.badge;
+    return '<div class="pl' + (pro ? ' pro' : '') + '">' + (pro ? '<span class="bd">' + e(p.badge) + '</span>' : '') +
+      '<h4>' + e(p.name) + '</h4><div class="pr">' + e(p.price) + '</div><div class="pe">' + e(p.per) + '</div>' +
+      '<ul>' + p.features.map(function (f) { return '<li>' + e(f) + '</li>'; }).join('') + '</ul>' +
+      '<a class="btn' + (pro ? '' : ' b') + '" href="' + CMS.contactUrl('Abonnement PME', '&plan=' + encodeURIComponent(p.name)) + '">' + e(p.cta) + '</a></div>';
+  }).join('');
+
+  $('steps').innerHTML = CMS.get('process').map(function (p, i) {
+    return '<div class="st"><div class="no">0' + (i + 1) + '</div><h4>' + e(p.t) + '</h4><p>' + e(p.d) + '</p></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

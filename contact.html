@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact - Live Y Dream</title>
+<meta name="description" content="Parlons de votre projet : devis transparent sous 24h, réponse garantie en moins d'une heure sur WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div data-lyd="header"></div>
+
+<main>
+  <section class="dk phero" style="padding-bottom:100px">
+    <div class="w">
+      <span class="k">Travaillons ensemble</span>
+      <h1>Parlons de votre projet</h1>
+      <p class="sub mu" style="max-width:560px">Dites-nous ce que vous voulez accomplir. Nous vous répondrons avec un plan d'action concret et un devis transparent sous 24h.</p>
+    </div>
+  </section>
+
+  <section class="sec" style="padding:70px 0 100px">
+    <div class="w ctc">
+      <div>
+        <div class="wa">
+          <h3>Réponse garantie en moins d'1 heure</h3>
+          <p>Pour une réponse immédiate, contactez-nous directement sur WhatsApp. Notre équipe est disponible 7j/7.</p>
+          <a class="btn" id="wa" href="#" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+        </div>
+        <div class="coord" id="coord"></div>
+      </div>
+
+      <div>
+        <form class="fm" id="form" novalidate>
+          <h3>Envoyer un message</h3>
+          <p class="sb">Remplissez le formulaire et nous vous répondons sous 24h.</p>
+          <div class="fg">
+            <div><label for="f-nom">Prénom &amp; Nom *</label><input id="f-nom" name="nom" required autocomplete="name"></div>
+            <div><label for="f-ent">Entreprise</label><input id="f-ent" name="entreprise" autocomplete="organization"></div>
+            <div><label for="f-mail">Email *</label><input id="f-mail" name="email" type="email" required autocomplete="email"></div>
+            <div><label for="f-wa">WhatsApp *</label><input id="f-wa" name="whatsapp" type="tel" required autocomplete="tel"></div>
+            <div><label for="f-need">Votre besoin</label><select id="f-need" name="besoin"></select></div>
+            <div><label for="f-bud">Budget estimé</label><select id="f-bud" name="budget"></select></div>
+            <div class="full"><label for="f-msg">Décrivez votre projet</label><textarea id="f-msg" name="message"></textarea></div>
+          </div>
+          <p class="err" id="err" role="alert"></p>
+          <button class="btn b" type="submit">Envoyer ma demande</button>
+          <p class="ok" id="ok" role="status"></p>
+          <p class="nt">Vos informations restent strictement confidentielles. Réponse garantie sous 24h.</p>
+        </form>
+        <p class="opts" id="opts"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+<script src="js/cms.js"></script>
+<script>
+(function () {
+  var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
+  var s = CMS.get('settings'), c = CMS.get('contact');
+  CMS.mount('contact.html');
+  $('wa').href = s.whatsapp;
+
+  $('coord').innerHTML = '<span class="k">Nous trouver</span><h2>Nos coordonnées</h2>' +
+    '<p class="lb">Notre bureau</p><p>' + c.address.map(e).join('<br>') + '</p>' +
+    '<p class="lb">Téléphone &amp; WhatsApp</p>' + c.phones.map(function (p) { return '<a class="big" href="tel:' + e(p.replace(/\s/g, '')) + '">' + e(p) + '</a>'; }).join('') +
+    '<p class="lb">E-mail</p>' + c.emails.map(function (m) { return '<a class="big" href="mailto:' + e(m) + '">' + e(m) + '</a>'; }).join('') +
+    '<p class="lb">Horaires</p>' + c.hours.map(function (h) { return '<div class="hr"><span>' + e(h[0]) + '</span><b>' + e(h[1]) + '</b></div>'; }).join('') +
+    '<div class="soc">' + c.socials.map(function (x) { return '<a href="' + e(x[1]) + '" target="_blank" rel="noopener">' + e(x[0]) + '</a>'; }).join('') + '</div>';
+
+  function fill(sel, placeholder, list) {
+    $(sel).innerHTML = '<option value="">' + e(placeholder) + '</option>' + list.map(function (x) { return '<option>' + e(x) + '</option>'; }).join('');
+  }
+  fill('f-need', 'Choisissez un service', c.needs);
+  fill('f-bud', 'Fourchette de budget', c.budgets);
+
+  /* Pré-remplissage depuis les autres pages (?service=…&plan=…&projet=…) */
+  var need = CMS.qs('service'), plan = CMS.qs('plan'), projet = CMS.qs('projet');
+  if (need && c.needs.indexOf(need) > -1) $('f-need').value = need;
+  if (plan) $('f-msg').value = 'Je souhaite souscrire à l\'abonnement ' + plan + '.';
+  else if (projet) $('f-msg').value = 'Je souhaite un projet similaire à : ' + projet + '.';
+
+  $('opts').innerHTML = 'Options « Votre besoin » : ' + c.needs.map(e).join(' · ') + '<br>Options « Budget estimé » : ' + c.budgets.map(e).join(' · ');
+
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var f = ev.target, v = function (n) { return f.elements[n].value.trim(); };
+    var err = $('err'); err.style.display = 'none';
+    if (!v('nom') || !v('email') || !v('whatsapp')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre numéro WhatsApp.'; err.style.display = 'block'; return; }
+    if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
+
+    var data = { nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: v('besoin'), budget: v('budget'), message: v('message'), date: new Date().toISOString() };
+    var box = CMS.get('messages') || []; box.push(data); CMS.set('messages', box);
+
+    var txt = 'Bonjour Live Y Dream, je suis ' + data.nom + (data.entreprise ? ' (' + data.entreprise + ')' : '') + '.\n' +
+      (data.besoin ? 'Besoin : ' + data.besoin + '\n' : '') + (data.budget ? 'Budget : ' + data.budget + '\n' : '') +
+      (data.message ? data.message + '\n' : '') + 'Email : ' + data.email + ' · WhatsApp : ' + data.whatsapp;
+    var link = s.whatsapp + '?text=' + encodeURIComponent(txt);
+    var ok = $('ok');
+    ok.innerHTML = 'Merci ' + e(data.nom) + ', votre demande est enregistrée. Pour une réponse immédiate, <a href="' + e(link) + '" target="_blank" rel="noopener"><strong>envoyez-la aussi par WhatsApp</strong></a>.';
+    ok.style.display = 'block';
+    f.reset();
+  });
+})();
+</script>
+</body>
+</html>
