@@ -14,6 +14,7 @@
 <div data-lyd="header"></div>
 
 <main>
+  <div id="blog-content">
   <section class="dk phero">
     <div class="w">
       <span class="k">Blog &amp; Ressources</span>
@@ -41,9 +42,11 @@
       <div class="tagcloud" id="tags"></div>
     </div>
   </section>
+  </div>
+  <section id="article-placeholder" style="display:none;min-height:55vh;place-items:center">
+    <h1>...</h1>
+  </section>
 </main>
-
-<div class="mod" id="mod" aria-hidden="true"><div class="mod-c" id="mod-c"></div></div>
 
 <div data-lyd="footer"></div>
 <script src="js/cms.js"></script>
@@ -58,6 +61,7 @@
 
   var initials = function (n) { return n.split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); };
   var meta = function (a, upper) { return e(a.cat) + ' · ' + e(a.date) + ' · ' + a.min + ' min'; };
+  var articleUrl = function (a) { return 'blog.html?id=' + encodeURIComponent(a.id); };
 
   function filtered() {
     var q = st.q.toLowerCase();
@@ -69,7 +73,7 @@
   }
 
   function footerRow(a) {
-    return '<div class="au"><span><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><button data-open="' + e(a.id) + '">Lire l\'article →</button></div>';
+    return '<div class="au"><span><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><a href="' + articleUrl(a) + '">Lire l\'article →</a></div>';
   }
 
   function cats() {
@@ -107,7 +111,7 @@
     var slice = rest.slice((st.page - 1) * PER, st.page * PER);
     $('grid').innerHTML = slice.length || feat ? slice.map(function (a) {
       return '<article class="ar"><div class="im ph-box">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
-        '<p class="meta">' + meta(a) + '</p><h3 data-open="' + e(a.id) + '">' + e(a.t) + '</h3><p class="ex">' + e(a.ex) + '</p>' + footerRow(a) + '</article>';
+        '<p class="meta">' + meta(a) + '</p><h3><a href="' + articleUrl(a) + '">' + e(a.t) + '</a></h3><p class="ex">' + e(a.ex) + '</p>' + footerRow(a) + '</article>';
     }).join('') + (st.page === pages ? '<aside class="audit"><h3>Audit Gratuit</h3><p>Faites auditer votre communication par nos experts. Sans engagement, réponse en 24h.</p><a class="btn" href="contact.html?service=' + encodeURIComponent('Stratégie Digitale Complète') + '">Demander →</a></aside>' : '')
       : '<p class="empty">Aucun article ne correspond à votre recherche.</p>';
 
@@ -116,38 +120,20 @@
     }).join('') : '';
   }
 
-  function openArticle(id) {
-    var a = all.filter(function (x) { return x.id === id; })[0]; if (!a) return;
-    var body = a.body && a.body.length ? a.body : [a.ex.replace(/…$/, '.')];
-    $('mod-c').innerHTML = '<button class="mod-x" aria-label="Fermer" data-close>×</button>' +
-      '<div class="im ph-box" style="border-radius:0">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
-      '<div class="mod-b"><p class="meta">' + meta(a) + ' · ' + e(a.author) + '</p><h2>' + e(a.t) + '</h2>' +
-      body.map(function (p) { return '<p>' + e(p) + '</p>'; }).join('') +
-      '<a class="btn b" href="contact.html" style="margin-top:12px">Parler à un expert</a></div>';
-    $('mod').classList.add('open'); $('mod').setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    history.replaceState(null, '', '#' + id);
-  }
-  function closeModal() {
-    $('mod').classList.remove('open'); $('mod').setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    history.replaceState(null, '', location.pathname);
-  }
-
   document.addEventListener('click', function (ev) {
     var t = ev.target;
-    var o = t.closest('[data-open]'); if (o) return openArticle(o.getAttribute('data-open'));
-    if (t.closest('[data-close]') || t === $('mod')) return closeModal();
     var c = t.closest('[data-cat]'); if (c) { st.cat = c.getAttribute('data-cat'); st.page = 1; return render(); }
     var g = t.closest('[data-tag]'); if (g) { var v = g.getAttribute('data-tag'); st.tag = st.tag === v ? '' : v; st.page = 1; return render(); }
     var p = t.closest('[data-page]'); if (p) { st.page = +p.getAttribute('data-page'); render(); window.scrollTo({ top: 300, behavior: 'smooth' }); }
   });
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeModal(); });
   $('sf').addEventListener('submit', function (ev) { ev.preventDefault(); st.q = $('q').value.trim(); st.page = 1; render(); });
   $('q').addEventListener('input', function () { st.q = this.value.trim(); st.page = 1; render(); });
 
   render();
-  if (location.hash) openArticle(decodeURIComponent(location.hash.slice(1)));
+  if (CMS.qs('id')) {
+    $('blog-content').style.display = 'none';
+    $('article-placeholder').style.display = 'grid';
+  }
 })();
 </script>
 </body>

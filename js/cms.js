@@ -31,7 +31,12 @@
       phones: ['+228 70 08 77 77', '+228 90 37 45 60'],
       emails: ['contact@liveydream.com', 'customercare@liveydream.com'],
       hours: [['Lundi - Vendredi', '8h30 - 18h00'], ['Samedi', '9h00 - 14h00'], ['Dimanche', 'Fermé']],
-      socials: [['Facebook', '#'], ['LinkedIn', '#'], ['Instagram', '#'], ['TikTok', '#']],
+      socials: [
+        ['Facebook', 'https://web.facebook.com/228LiveYDream?_rdc=1&_rdr#'],
+        ['LinkedIn', 'https://linkedin.com/company/liveydream'],
+        ['Instagram', 'https://www.instagram.com/liveydream'],
+        ['TikTok', 'https://tiktok.com/@liveydream']
+      ],
       needs: ['Community Management', 'Production Vidéo & Photo', 'Conception Graphique & Identité', 'Organisation Événementielle', 'Régie Publicitaire', 'Abonnement PME', 'Stratégie Digitale Complète', 'Autre'],
       budgets: ['Moins de 100 000 FCFA', '100 000 - 300 000 FCFA', '300 000 - 1 000 000 FCFA', 'Plus de 1 000 000 FCFA', 'À définir ensemble']
     },
