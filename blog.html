@@ -43,10 +43,9 @@
     </div>
   </section>
   </div>
-  <section id="article-placeholder" style="display:none;min-height:55vh;place-items:center">
-    <h1>...</h1>
-  </section>
+  <div id="article-view" style="display:none"></div>
 </main>
+<div class="rp" id="rp" style="display:none"></div>
 
 <div data-lyd="footer"></div>
 <script src="js/cms.js"></script>
@@ -129,11 +128,117 @@
   $('sf').addEventListener('submit', function (ev) { ev.preventDefault(); st.q = $('q').value.trim(); st.page = 1; render(); });
   $('q').addEventListener('input', function () { st.q = this.value.trim(); st.page = 1; render(); });
 
-  render();
-  if (CMS.qs('id')) {
-    $('blog-content').style.display = 'none';
-    $('article-placeholder').style.display = 'grid';
+  /* ---------- Page article ---------- */
+  var fmt = function (s) { return e(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); };
+  var slugify = function (s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+
+  function renderBody(a) {
+    var blocks = a.body && a.body.length ? a.body : [['p', a.ex.replace(/…$/, '.')]];
+    var toc = [];
+    var html = blocks.map(function (b) {
+      switch (b[0]) {
+        case 'h2': var id = slugify(b[1]); toc.push([id, b[1]]); return '<h2 id="' + id + '">' + fmt(b[1]) + '</h2>';
+        case 'ul': return '<ul>' + b[1].map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>';
+        case 'quote': return '<blockquote>' + fmt(b[1]) + '</blockquote>';
+        case 'tip': return '<div class="tip"><span class="k">' + e(b[1]) + '</span><p>' + fmt(b[2]) + '</p></div>';
+        default: return '<p>' + fmt(b[1]) + '</p>';
+      }
+    }).join('');
+    return { html: html, toc: toc };
   }
+
+  function related(a) {
+    var others = all.filter(function (x) { return x.id !== a.id; });
+    others.sort(function (x, y) {
+      var sx = x.tags.filter(function (t) { return a.tags.indexOf(t) > -1; }).length;
+      var sy = y.tags.filter(function (t) { return a.tags.indexOf(t) > -1; }).length;
+      return sy - sx;
+    });
+    return others.slice(0, 3);
+  }
+
+  function renderArticle(id) {
+    var a = all.filter(function (x) { return x.id === id; })[0];
+    var view = $('article-view');
+    $('blog-content').style.display = 'none';
+    view.style.display = 'block';
+
+    if (!a) {
+      view.innerHTML = '<section class="dk phero"><div class="w"><p class="crumb" style="margin:0"><a href="index.html">Accueil</a> / <a href="blog.html">Blog</a></p></div></section>' +
+        '<section class="anf"><div class="w"><h1>Article introuvable</h1><p class="mu" style="margin-bottom:24px">Cet article n\'existe pas ou a été déplacé.</p><a class="btn b" href="blog.html">Retour au blog</a></div></section>';
+      document.title = 'Article introuvable - Live Y Dream';
+      return;
+    }
+
+    document.title = a.t + ' - Live Y Dream';
+    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', a.ex);
+
+    var b = renderBody(a);
+    var url = location.href.split('#')[0];
+    var enc = encodeURIComponent;
+    var wa = CMS.get('settings').whatsapp;
+
+    view.innerHTML =
+      '<section class="dk ahero"><div class="w">' +
+        '<p class="crumb"><a href="index.html">Accueil</a> / <a href="blog.html">Blog</a> / ' + e(a.cat) + '</p>' +
+        '<span class="pill">' + e(a.cat).toUpperCase() + '</span>' +
+        '<h1>' + e(a.t) + '</h1>' +
+        '<div class="ameta"><span class="who"><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><span>' + e(a.date) + '</span><span>' + a.min + ' min de lecture</span></div>' +
+      '</div></section>' +
+
+      '<div class="w"><div class="acover ph-box">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
+      '<div class="abody"><article>' +
+        '<div class="prose">' + b.html + '</div>' +
+      '</article>' +
+      '<aside class="aside">' +
+        (b.toc.length ? '<div class="box"><h5>Dans cet article</h5><nav class="toc" id="toc">' + b.toc.map(function (t) { return '<a href="#' + t[0] + '">' + e(t[1]) + '</a>'; }).join('') + '</nav></div>' : '') +
+        '<div class="box"><h5>Partager</h5><div class="share">' +
+          '<a href="https://wa.me/?text=' + enc(a.t + ' ' + url) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+          '<a href="https://www.facebook.com/sharer/sharer.php?u=' + enc(url) + '" target="_blank" rel="noopener">Facebook</a>' +
+          '<a href="https://www.linkedin.com/sharing/share-offsite/?url=' + enc(url) + '" target="_blank" rel="noopener">LinkedIn</a>' +
+          '<button type="button" id="copy">Copier le lien</button></div></div>' +
+        '<div class="audit"><h3>Audit Gratuit</h3><p>Faites auditer votre communication par nos experts. Sans engagement, réponse en 24h.</p><a class="btn" href="contact.html?service=' + enc('Stratégie Digitale Complète') + '">Demander →</a></div>' +
+      '</aside></div>' +
+
+      '<div class="atags">' + a.tags.map(function (t) { return '<a href="blog.html?tag=' + enc(t) + '">' + e(t) + '</a>'; }).join('') + '</div>' +
+      '<div class="abox"><i class="av">' + e(initials(a.author)) + '</i><div><b>' + e(a.author) + '</b><p>Rédigé par l\'équipe Live Y Dream, agence de communication à Lomé depuis 2013. Stratégie, création et production au service des marques d\'Afrique de l\'Ouest.</p></div></div></div>' +
+
+      '<section class="gy rel"><div class="w"><p class="k">À lire aussi</p>' +
+        '<div class="rel-h"><h2 class="h2">Continuez votre lecture</h2><a class="btn ob" href="blog.html">Tous les articles</a></div>' +
+        '<div class="bg">' + related(a).map(function (r) {
+          return '<article class="ar"><div class="im ph-box">' + CMS.ph(r.img, r.cat, r.t) + '</div><p class="meta">' + meta(r) + '</p>' +
+            '<h3><a href="' + articleUrl(r) + '">' + e(r.t) + '</a></h3><p class="ex">' + e(r.ex) + '</p>' + footerRow(r) + '</article>';
+        }).join('') + '</div></div></section>' +
+
+      '<section class="cta-s dk"><div class="w"><p class="k">Passez à l\'action</p>' +
+        '<h2 style="font-size:clamp(32px,5vw,64px)">Votre marque mérite d\'être vue</h2>' +
+        '<p class="t mu">L\'audit est gratuit. Les résultats sont réels.</p>' +
+        '<div class="actions"><a class="btn" href="contact.html">Demander un devis</a><a class="btn o" href="' + e(wa) + '" target="_blank" rel="noopener">WhatsApp direct</a></div></div></section>';
+
+    window.scrollTo(0, 0);
+
+    var copy = $('copy');
+    if (copy) copy.addEventListener('click', function () {
+      var done = function () { copy.textContent = 'Lien copié ✓'; setTimeout(function () { copy.textContent = 'Copier le lien'; }, 2000); };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done); else done();
+    });
+
+    /* Barre de progression + sommaire actif */
+    var rp = $('rp'); rp.style.display = 'block';
+    var heads = [].slice.call(view.querySelectorAll('.prose h2')), links = [].slice.call(view.querySelectorAll('#toc a'));
+    function onScroll() {
+      var h = document.documentElement;
+      rp.style.width = Math.min(100, (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100) + '%';
+      var cur = -1; heads.forEach(function (x, i) { if (x.getBoundingClientRect().top < 140) cur = i; });
+      links.forEach(function (l, i) { l.classList.toggle('on', i === cur); });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  }
+
+  render();
+  /* Arrivée depuis une page d'article avec un tag : ?tag=… filtre la liste */
+  if (CMS.qs('tag')) { st.tag = CMS.qs('tag'); render(); }
+  if (CMS.qs('id')) renderArticle(CMS.qs('id'));
 })();
 </script>
 </body>
