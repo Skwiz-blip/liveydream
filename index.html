@@ -65,8 +65,12 @@
       <div class="camps" id="camps"></div>
     </div>
   </section>
-  
- 
+
+  <section class="trust gy">
+    <div class="w"><p class="k">Ils nous font confiance</p></div>
+    <div class="lg-mq" aria-label="Ils nous font confiance"><div class="lg-track" id="logos"></div></div>
+  </section>
+
   <section class="sec">
     <div class="w">
       <p class="k">Ce que disent nos clients</p>
@@ -125,9 +129,12 @@
       '<p class="cat">' + e(c.cat) + '</p><h4>' + e(c.t) + '</h4></a>';
   }).join('');
 
-  $('logos').innerHTML = CMS.get('clients').map(function (l) {
-    return '<div>' + (l ? '<img src="' + e(l) + '" alt="">' : '') + '</div>';
+  /* Défilement continu : la liste est doublée pour une boucle sans coupure */
+  var logoItems = CMS.get('clients').map(function (l) {
+    var c = typeof l === 'string' ? { name: '', img: l } : l;
+    return '<div class="lg">' + (c.img ? '<img src="' + e(c.img) + '" alt="' + e(c.name) + '">' : '<span>' + e(c.name) + '</span>') + '</div>';
   }).join('');
+  $('logos').innerHTML = logoItems + logoItems.replace(/class="lg"/g, 'class="lg" aria-hidden="true"');
 
   $('testi').innerHTML = CMS.get('testimonials').map(function (t) {
     return '<div class="tc"><div class="stars">★★★★★</div><p>' + e(t.q) + '</p><div><strong>' + e(t.n) + '</strong><span>' + e(t.o) + '</span></div></div>';

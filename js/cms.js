@@ -28,9 +28,9 @@
 
     contact: {
       address: ['177 Rue HDN, Hédzranawoé', 'Lomé, Togo - non loin de STEA'],
-      phones: ['+228 70 08 77 77', '+228 90 37 45 60'],
-      emails: ['contact@liveydream.com', 'customercare@liveydream.com'],
-      hours: [['Lundi - Vendredi', '8h30 - 18h00'], ['Samedi', '9h00 - 14h00'], ['Dimanche', 'Fermé']],
+      phones: ['+228 70 08 77 77', '+228 90 93 10 05'],
+      emails: ['contact@liveydream.com', 'sale@liveydream.com'],
+      hours: [['Lundi - Vendredi', '8h30 - 18h00'], ['Samedi', 'Fermé'], ['Dimanche', 'Fermé']],
       socials: [
         ['Facebook', 'https://web.facebook.com/228LiveYDream?_rdc=1&_rdr#'],
         ['LinkedIn', 'https://linkedin.com/company/liveydream'],
@@ -123,7 +123,16 @@
         res: [['1000+', 'Personnes'], ['2', 'Éditions'], ['100%', 'Sold Out'], ['Viral', 'Sur les RS']] }
     ],
 
-    clients: ['', '', '', '', '', '', '', ''],
+    /* Offres d'emploi (vide par défaut : seule la candidature spontanée s'affiche) */
+    jobs: [],
+
+    /* « Ils nous font confiance » : défile automatiquement. img vide = emplacement gris. */
+    clients: [
+      { name: 'Gnadoe Magazine Awards', img: '' },
+      { name: 'Group KIK', img: '' }, { name: 'WOODIN', img: '' }, { name: 'MANTA HUB', img: '' },
+      { name: 'KRYSTAL', img: '' }, { name: 'ABISCREAM', img: '' }, { name: 'LDM', img: '' },
+      { name: 'KRAMEL', img: '' }
+    ],
 
     testimonials: [
       { q: "Live Y Dream nous accompagne depuis 3 ans. Ils ont su s'immerger dans notre culture d'entreprise pour nous offrir une identité visuelle incomparable. Leur réactivité est indéniablement leur plus grand atout.", n: 'Directeur Marketing', o: 'Woodin Togo' },
@@ -236,7 +245,8 @@
         { y: '2018', t: 'Lomé By Night, premier concept propriétaire', d: "Création et production du premier concept événementiel interne de l'agence. Plus de 1000 participants, preuve de la valeur au-delà des services." },
         { y: '2019', t: 'Battle Arena & expansion régionale', d: "Lancement de Battle Arena et ouverture des premiers bureaux au Bénin. L'agence commence son expansion panafricaine." },
         { y: '2022', t: 'Partenariats institutionnels', d: "Signature de contrats avec UNICEF, GIZ et d'autres organisations internationales. La qualité de LYD reconnue au niveau mondial." },
-        { y: '2023', t: '10 ans, nouveau chapitre', d: "Célébration d'une décennie. Lancement de Wakabi (tourisme) et restructuration vers un groupe panafricain. Les 10 prochaines années commencent." }
+        { y: '2023', t: '10 ans, nouveau chapitre', d: "Célébration d'une décennie. Lancement de Wakabi (tourisme) et restructuration vers un groupe panafricain. Les 10 prochaines années commencent." },
+        { y: '2023', t: 'Gnadoe Magazine Awards', d: "Cérémonie de récompenses culturelles et médiatiques organisée au Togo par Gnadoe Media / Gnadoe Magazine, qui célèbre les talents, artistes, influenceurs et acteurs de la scène togolaise." }
       ]
     }
   };
@@ -302,7 +312,7 @@
       '<div class="ft-g">' +
       '<div><a class="logo" href="index.html">' + esc(s.brand) + '</a><p>' + esc(s.baseline) + '</p></div>' +
       '<div><h5>Services</h5><ul>' + svc + '</ul></div>' +
-      '<div><h5>Agence</h5><ul><li><a href="a-propos.html">Notre histoire</a></li><li><a href="a-propos.html#valeurs">Notre équipe</a></li><li><a href="campagnes.html">Nos réalisations</a></li><li><a href="blog.html">Blog &amp; Ressources</a></li><li><a href="contact.html?service=Autre">Rejoindre LYD</a></li></ul></div>' +
+      '<div><h5>Agence</h5><ul><li><a href="a-propos.html">Notre histoire</a></li><li><a href="a-propos.html#valeurs">Notre équipe</a></li><li><a href="campagnes.html">Nos réalisations</a></li><li><a href="blog.html">Blog &amp; Ressources</a></li><li><a href="carrieres.html">Rejoindre LYD</a></li></ul></div>' +
       '<div><h5>Contact</h5><ul><li><a href="tel:' + esc(s.phone.replace(/\s/g, '')) + '">' + esc(s.phone) + '</a></li><li><a href="mailto:' + esc(s.email) + '">' + esc(s.email) + '</a></li><li><a href="' + esc(s.whatsapp) + '" target="_blank" rel="noopener">WhatsApp direct</a></li><li><a href="contact.html">Demander un devis</a></li></ul></div>' +
       '</div>' +
       '<div class="ft-b"><span>' + new Date().getFullYear() + ' Live Y Dream · Tous droits réservés · Lomé, Togo</span><span>Mentions légales · Confidentialité</span></div>' +
@@ -328,6 +338,30 @@
       else if (t === 'footer') el.outerHTML = CMS.footer();
       else if (t === 'stats') el.outerHTML = CMS.statsBand();
     });
+    CMS.topBtn();
+  };
+
+  /* Bouton flottant « remonter en haut » — présent sur toutes les pages */
+  CMS.topBtn = function () {
+    if (document.getElementById('toTop')) return;
+    var b = document.createElement('button');
+    b.id = 'toTop'; b.type = 'button';
+    b.setAttribute('aria-label', 'Remonter en haut');
+    b.innerHTML = '↑';
+    b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    document.body.appendChild(b);
+    var toggle = function () {
+      b.classList.toggle('show', (window.pageYOffset || document.documentElement.scrollTop) > 150);
+      /* s'inverse (blanc) quand il survole une zone noire (.dk) */
+      var r = b.getBoundingClientRect(), cy = r.top + r.height / 2, cx = r.left + r.width / 2, dark = false;
+      document.querySelectorAll('.dk').forEach(function (el) {
+        var q = el.getBoundingClientRect();
+        if (cy >= q.top && cy <= q.bottom && cx >= q.left && cx <= q.right) dark = true;
+      });
+      b.classList.toggle('inv', dark);
+    };
+    window.addEventListener('scroll', toggle, { passive: true });
+    toggle();
   };
 
   window.CMS = CMS;

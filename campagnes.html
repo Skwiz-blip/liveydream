@@ -60,11 +60,11 @@
   function card(c) {
     return '<article class="cc" id="' + e(slug(c)) + '">' +
       '<div class="im ph-box">' + CMS.ph(c.img, c.cat, c.t) + (c.img ? '<span class="ph-l">' + e(c.cat) + '</span>' : '') + '</div>' +
-      '<h3>' + e(c.t) + '</h3><p class="by">' + e(c.client) + ' · ' + e(c.year) + '</p>' +
+      '<h3>' + e(c.t) + '</h3><p class="by">' + e(c.client) + (c.year ? ' · ' + e(c.year) : '') + '</p>' +
       '<p class="ds">' + e(c.d) + '</p>' +
       '<div class="tags">' + c.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div>' +
-      '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
-      c.res.map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div></div>' +
+      (c.res.length ? '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
+      c.res.map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div></div>' : '') +
       '<a class="sim" href="' + CMS.contactUrl('Stratégie Digitale Complète', '&projet=' + encodeURIComponent(c.t)) + '">Je veux un projet similaire →</a></article>';
   }
 

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carrières - Live Y Dream</title>
+<meta name="description" content="Rejoignez Live Y Dream : offres d'emploi et candidature spontanée dans une agence de communication à Lomé.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div data-lyd="header"></div>
+
+<main>
+  <section class="dk phero" style="padding-bottom:90px">
+    <div class="w">
+      <span class="k">Carrières</span>
+      <h1>Rejoignez l'équipe <em>Live Y Dream</em></h1>
+      <p class="sub mu">Nous cherchons des talents qui veulent bâtir des marques qui gagnent. Consultez nos offres ou envoyez-nous une candidature spontanée.</p>
+      <p class="crumb"><a href="index.html">Accueil</a> / Carrières</p>
+    </div>
+  </section>
+
+  <section class="sec" style="padding:70px 0 40px" id="offres">
+    <div class="w">
+      <p class="k">Offres d'emploi</p>
+      <h2 class="h2" style="margin:22px 0 36px">Postes ouverts</h2>
+      <div id="jobs"></div>
+    </div>
+  </section>
+
+  <section class="sec gy" style="padding:80px 0 100px" id="postuler">
+    <div class="w ctc">
+      <div>
+        <p class="k">Candidature</p>
+        <h2 class="h2" style="margin:22px 0 18px">Postulez ou envoyez une candidature spontanée</h2>
+        <p style="font-size:13px;line-height:1.7;max-width:420px">Pas d'offre qui vous correspond ? Choisissez « Candidature spontanée » : nous gardons votre profil et vous recontactons dès qu'un poste s'ouvre.</p>
+        <div class="why" id="why"></div>
+      </div>
+
+      <form class="fm" id="form" novalidate>
+        <h3>Votre candidature</h3>
+        <p class="sb">Nous répondons à chaque candidature sous 7 jours.</p>
+        <div class="fg">
+          <div><label for="f-nom">Prénom &amp; Nom *</label><input id="f-nom" name="nom" required autocomplete="name"></div>
+          <div><label for="f-mail">Email *</label><input id="f-mail" name="email" type="email" required autocomplete="email"></div>
+          <div><label for="f-wa">WhatsApp *</label><input id="f-wa" name="whatsapp" type="tel" required autocomplete="tel"></div>
+          <div><label for="f-poste">Poste visé *</label><select id="f-poste" name="poste"></select></div>
+          <div class="full"><label for="f-cv">Lien vers votre CV ou portfolio</label><input id="f-cv" name="cv" type="url" placeholder="https://"></div>
+          <div class="full"><label for="f-msg">Parlez-nous de vous</label><textarea id="f-msg" name="message"></textarea></div>
+        </div>
+        <p class="err" id="err" role="alert"></p>
+        <button class="btn b" type="submit">Envoyer ma candidature</button>
+        <p class="ok" id="ok" role="status"></p>
+        <p class="nt">Vos informations restent strictement confidentielles.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+<script src="js/cms.js"></script>
+<script>
+(function () {
+  var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
+  var s = CMS.get('settings'), jobs = CMS.get('jobs');
+  var SPONT = 'Candidature spontanée';
+  CMS.mount('carrieres.html');
+
+  $('jobs').innerHTML = jobs.length ? jobs.map(function (j, i) {
+    return '<div class="job"><div><h3>' + e(j.t) + '</h3><p class="meta">' + e([j.type, j.lieu, j.date].filter(Boolean).join(' · ')) + '</p>' +
+      (j.d ? '<p class="ex">' + e(j.d) + '</p>' : '') + '</div>' +
+      '<a class="btn b" href="carrieres.html?poste=' + encodeURIComponent(j.t) + '#postuler">Postuler →</a></div>';
+  }).join('') : '<div class="job-empty"><p>Aucune offre ouverte pour le moment.</p><p class="mu" style="color:var(--mute);font-size:12px;margin-top:6px">Envoyez-nous une candidature spontanée : nous gardons votre profil.</p><a class="btn b" href="#postuler" style="margin-top:18px">Candidature spontanée</a></div>';
+
+  var why = [['Des projets qui comptent', 'Marques, événements et campagnes qui marquent le marché togolais et ouest-africain.'],
+             ['Une équipe de passionnés', 'Un studio équipé et des collègues qui poussent chacun à progresser.'],
+             ['Une vision panafricaine', 'Présence au Togo, au Bénin, au Gabon et au Mali.']];
+  $('why').innerHTML = why.map(function (w, i) { return '<div class="wy"><b>0' + (i + 1) + '</b><div><h4>' + e(w[0]) + '</h4><p>' + e(w[1]) + '</p></div></div>'; }).join('');
+
+  var postes = jobs.map(function (j) { return j.t; }).concat([SPONT, 'Community Management', 'Production Vidéo & Photo', 'Conception Graphique', 'Organisation Événementielle', 'Autre']);
+  $('f-poste').innerHTML = '<option value="">Choisissez un poste</option>' + postes.map(function (p) { return '<option>' + e(p) + '</option>'; }).join('');
+  var want = CMS.qs('poste');
+  $('f-poste').value = want && postes.indexOf(want) > -1 ? want : (jobs.length ? '' : SPONT);
+
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var f = ev.target, v = function (n) { return f.elements[n].value.trim(); }, err = $('err');
+    err.style.display = 'none';
+    if (!v('nom') || !v('email') || !v('whatsapp') || !v('poste')) { err.textContent = 'Merci de renseigner votre nom, email, WhatsApp et le poste visé.'; err.style.display = 'block'; return; }
+    if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
+
+    var d = { nom: v('nom'), email: v('email'), whatsapp: v('whatsapp'), poste: v('poste'), cv: v('cv'), message: v('message'), date: new Date().toISOString() };
+    var box = CMS.get('applications') || []; box.push(d); CMS.set('applications', box);
+
+    var body = 'Bonjour, je souhaite postuler : ' + d.poste + '\nNom : ' + d.nom + '\nEmail : ' + d.email + '\nWhatsApp : ' + d.whatsapp +
+      (d.cv ? '\nCV / portfolio : ' + d.cv : '') + (d.message ? '\n\n' + d.message : '');
+    var mail = 'mailto:' + s.email + '?subject=' + encodeURIComponent('Candidature - ' + d.poste) + '&body=' + encodeURIComponent(body);
+    var wa = s.whatsapp + '?text=' + encodeURIComponent(body);
+    var ok = $('ok');
+    ok.innerHTML = 'Merci ' + e(d.nom) + ', votre candidature est enregistrée. Pour qu\'elle nous parvienne, <a href="' + e(mail) + '"><strong>envoyez-la par email</strong></a> ou <a href="' + e(wa) + '" target="_blank" rel="noopener"><strong>par WhatsApp</strong></a>.';
+    ok.style.display = 'block';
+    f.reset();
+  });
+})();
+</script>
+</body>
+</html>
