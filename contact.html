@@ -16,9 +16,9 @@
 <main>
   <section class="dk phero" style="padding-bottom:100px">
     <div class="w">
-      <span class="k">Travaillons ensemble</span>
-      <h1>Parlons de votre projet</h1>
-      <p class="sub mu" style="max-width:560px">Dites-nous ce que vous voulez accomplir. Nous vous répondrons avec un plan d'action concret et un devis transparent sous 24h.</p>
+      <span class="k" data-t="contact.heroK">Travaillons ensemble</span>
+      <h1 data-t="contact.heroT">Parlons de votre projet</h1>
+      <p class="sub mu" style="max-width:560px" data-t="contact.heroP">Dites-nous ce que vous voulez accomplir. Nous vous répondrons avec un plan d'action concret et un devis transparent sous 24h.</p>
     </div>
   </section>
 
@@ -26,17 +26,17 @@
     <div class="w ctc">
       <div>
         <div class="wa">
-          <h3>Réponse garantie en moins d'1 heure</h3>
-          <p>Pour une réponse immédiate, contactez-nous directement sur WhatsApp. Notre équipe est disponible 7j/7.</p>
-          <a class="btn" id="wa" href="#" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+          <h3 data-t="contact.waT">Réponse garantie en moins d'1 heure</h3>
+          <p data-t="contact.waP">Pour une réponse immédiate, contactez-nous directement sur WhatsApp. Notre équipe est disponible 7j/7.</p>
+          <a class="btn" id="wa" href="#" target="_blank" rel="noopener" data-t="contact.waBtn">Écrire sur WhatsApp</a>
         </div>
         <div class="coord" id="coord"></div>
       </div>
 
       <div>
         <form class="fm" id="form" novalidate>
-          <h3>Envoyer un message</h3>
-          <p class="sb">Remplissez le formulaire et nous vous répondons sous 24h.</p>
+          <h3 data-t="contact.formT">Envoyer un message</h3>
+          <p class="sb" data-t="contact.formP">Remplissez le formulaire et nous vous répondons sous 24h.</p>
           <div class="fg">
             <div><label for="f-nom">Prénom &amp; Nom *</label><input id="f-nom" name="nom" required autocomplete="name"></div>
             <div><label for="f-ent">Entreprise</label><input id="f-ent" name="entreprise" autocomplete="organization"></div>
@@ -47,9 +47,10 @@
             <div class="full"><label for="f-msg">Décrivez votre projet</label><textarea id="f-msg" name="message"></textarea></div>
           </div>
           <p class="err" id="err" role="alert"></p>
-          <button class="btn b" type="submit">Envoyer ma demande</button>
+          <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="btn b" id="send" type="submit" data-t="contact.formBtn">Envoyer ma demande</button>
           <p class="ok" id="ok" role="status"></p>
-          <p class="nt">Vos informations restent strictement confidentielles. Réponse garantie sous 24h.</p>
+          <p class="nt" data-t="contact.formNote">Vos informations restent strictement confidentielles. Réponse garantie sous 24h.</p>
         </form>
         <p class="opts" id="opts"></p>
       </div>
@@ -58,6 +59,7 @@
 </main>
 
 <div data-lyd="footer"></div> 
+<script src="js/content.js"></script>
 <script src="js/cms.js"></script>
 <script>
 (function () {
@@ -71,7 +73,7 @@
     '<p class="lb">Téléphone &amp; WhatsApp</p>' + c.phones.map(function (p) { return '<a class="big" href="tel:' + e(p.replace(/\s/g, '')) + '">' + e(p) + '</a>'; }).join('') +
     '<p class="lb">E-mail</p>' + c.emails.map(function (m) { return '<a class="big" href="mailto:' + e(m) + '">' + e(m) + '</a>'; }).join('') +
     '<p class="lb">Horaires</p>' + c.hours.map(function (h) { return '<div class="hr"><span>' + e(h[0]) + '</span><b>' + e(h[1]) + '</b></div>'; }).join('') +
-    '<div class="soc">' + c.socials.map(function (x) { return '<a href="' + e(x[1]) + '" target="_blank" rel="noopener">' + e(x[0]) + '</a>'; }).join('') + '</div>';
+    '<div class="soc">' + c.socials.map(function (x) { return '<a href="' + e(CMS.href(x[1])) + '" target="_blank" rel="noopener">' + e(x[0]) + '</a>'; }).join('') + '</div>';
 
   function fill(sel, placeholder, list) {
     $(sel).innerHTML = '<option value="">' + e(placeholder) + '</option>' + list.map(function (x) { return '<option>' + e(x) + '</option>'; }).join('');
@@ -94,17 +96,24 @@
     if (!v('nom') || !v('email') || !v('whatsapp')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre numéro WhatsApp.'; err.style.display = 'block'; return; }
     if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
 
-    var data = { nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: v('besoin'), budget: v('budget'), message: v('message'), date: new Date().toISOString() };
-    var box = CMS.get('messages') || []; box.push(data); CMS.set('messages', box);
+    var ok = $('ok'), send = $('send');
+    if (v('_honey')) { ok.textContent = 'Merci, votre demande est envoyée.'; ok.style.display = 'block'; f.reset(); return; }
+    var data = { id: CMS.uid(), nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: v('besoin'), budget: v('budget'), message: v('message'), date: new Date().toISOString() };
 
     var txt = 'Bonjour Live Y Dream, je suis ' + data.nom + (data.entreprise ? ' (' + data.entreprise + ')' : '') + '.\n' +
       (data.besoin ? 'Besoin : ' + data.besoin + '\n' : '') + (data.budget ? 'Budget : ' + data.budget + '\n' : '') +
       (data.message ? data.message + '\n' : '') + 'Email : ' + data.email + ' · WhatsApp : ' + data.whatsapp;
     var link = s.whatsapp + '?text=' + encodeURIComponent(txt);
-    var ok = $('ok');
-    ok.innerHTML = 'Merci ' + e(data.nom) + ', votre demande est enregistrée. Pour une réponse immédiate, <a href="' + e(link) + '" target="_blank" rel="noopener"><strong>envoyez-la aussi par WhatsApp</strong></a>.';
-    ok.style.display = 'block';
-    f.reset();
+    send.disabled = true;
+    CMS.sendForm('messages', data, 'Demande de contact - ' + data.nom).then(function (r) {
+      var wa = '<a href="' + e(link) + '" target="_blank" rel="noopener"><strong>envoyez-la par WhatsApp</strong></a>';
+      ok.innerHTML = r.sent ? 'Merci ' + e(data.nom) + ', votre demande est bien envoyée. Nous vous répondons sous 24h.'
+        : r.failed ? 'Merci ' + e(data.nom) + '. L\'envoi automatique n\'a pas abouti : pour que votre demande nous parvienne, ' + wa + '.'
+        : 'Merci ' + e(data.nom) + '. Pour que votre demande nous parvienne, ' + wa + '.';
+      ok.style.display = 'block';
+      send.disabled = false;
+      f.reset();
+    });
   });
 })();
 </script>

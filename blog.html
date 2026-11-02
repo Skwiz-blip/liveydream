@@ -17,8 +17,8 @@
   <div id="blog-content">
   <section class="dk phero">
     <div class="w">
-      <span class="k">Blog &amp; Ressources</span>
-      <h1>Conseils &amp; stratégies pour vos marques</h1>
+      <span class="k" data-t="blog.heroK">Blog &amp; Ressources</span>
+      <h1 data-t="blog.heroT">Conseils &amp; stratégies pour vos marques</h1>
       <p class="crumb"><a href="index.html">Accueil</a> / Blog</p>
     </div>
   </section>
@@ -37,7 +37,7 @@
 
   <section class="gy tagsec">
     <div class="w">
-      <h3>Catégories &amp; tags</h3>
+      <h3 data-t="blog.tagsT">Catégories &amp; tags</h3>
       <div class="filters" id="cats2" style="margin:0"></div>
       <div class="tagcloud" id="tags"></div>
     </div>
@@ -48,18 +48,19 @@
 <div class="rp" id="rp" style="display:none"></div>
 
 <div data-lyd="footer"></div>
+<script src="js/content.js"></script>
 <script src="js/cms.js"></script>
 <script>
 (function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
-  var all = CMS.get('articles');
+  var allRaw = CMS.get('articles'), all = CMS.published(allRaw), T = CMS.get('blogTexts');
   var PER = 8;
   var st = { cat: '', tag: '', q: '', page: 1 };
 
   CMS.mount('blog.html');
 
   var initials = function (n) { return n.split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); };
-  var meta = function (a, upper) { return e(a.cat) + ' · ' + e(a.date) + ' · ' + a.min + ' min'; };
+  var meta = function (a) { return e(a.cat) + ' · ' + e(a.date) + ' · ' + e(a.min) + ' min'; };
   var articleUrl = function (a) { return 'blog.html?id=' + encodeURIComponent(a.id); };
 
   function filtered() {
@@ -111,7 +112,7 @@
     $('grid').innerHTML = slice.length || feat ? slice.map(function (a) {
       return '<article class="ar"><div class="im ph-box">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
         '<p class="meta">' + meta(a) + '</p><h3><a href="' + articleUrl(a) + '">' + e(a.t) + '</a></h3><p class="ex">' + e(a.ex) + '</p>' + footerRow(a) + '</article>';
-    }).join('') + (st.page === pages ? '<aside class="audit"><h3>Audit Gratuit</h3><p>Faites auditer votre communication par nos experts. Sans engagement, réponse en 24h.</p><a class="btn" href="contact.html?service=' + encodeURIComponent('Stratégie Digitale Complète') + '">Demander →</a></aside>' : '')
+    }).join('') + (st.page === pages ? '<aside class="audit"><h3>' + e(T.auditT) + '</h3><p>' + e(T.auditD) + '</p><a class="btn" href="contact.html?service=' + encodeURIComponent('Stratégie Digitale Complète') + '">' + e(T.auditBtn) + '</a></aside>' : '')
       : '<p class="empty">Aucun article ne correspond à votre recherche.</p>';
 
     $('pager').innerHTML = pages > 1 ? Array.apply(null, Array(pages)).map(function (_, i) {
@@ -129,22 +130,71 @@
   $('q').addEventListener('input', function () { st.q = this.value.trim(); st.page = 1; render(); });
 
   /* ---------- Page article ---------- */
-  var fmt = function (s) { return e(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); };
-  var slugify = function (s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
 
-  function renderBody(a) {
-    var blocks = a.body && a.body.length ? a.body : [['p', a.ex.replace(/…$/, '.')]];
-    var toc = [];
-    var html = blocks.map(function (b) {
-      switch (b[0]) {
-        case 'h2': var id = slugify(b[1]); toc.push([id, b[1]]); return '<h2 id="' + id + '">' + fmt(b[1]) + '</h2>';
-        case 'ul': return '<ul>' + b[1].map(function (x) { return '<li>' + fmt(x) + '</li>'; }).join('') + '</ul>';
-        case 'quote': return '<blockquote>' + fmt(b[1]) + '</blockquote>';
-        case 'tip': return '<div class="tip"><span class="k">' + e(b[1]) + '</span><p>' + fmt(b[2]) + '</p></div>';
-        default: return '<p>' + fmt(b[1]) + '</p>';
-      }
-    }).join('');
-    return { html: html, toc: toc };
+  /* ---------- Commentaires ---------- */
+  function commentsHtml(a) {
+    var data = CMS.commentThreads(a.id), open = CMS.get('discussion').enabled && a.allowComments !== false;
+    if (!data.total && !open) return '';
+    function when(d) { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    function one(c, isReply) {
+      return '<div class="cm' + (isReply ? ' reply' : '') + '" id="c-' + e(c.id) + '"><i class="av">' + e(initials(c.author)) + '</i><div class="cm-b">' +
+        '<b>' + e(c.author) + '</b><span class="cm-d">' + e(when(c.date)) + '</span><p>' + e(c.content) + '</p>' +
+        (open && !isReply ? '<button type="button" class="cm-r" data-reply="' + e(c.id) + '" data-name="' + e(c.author) + '">Répondre</button>' : '') + '</div></div>';
+    }
+    var moderate = CMS.get('discussion').moderate !== false;
+    return '<section class="cmts" id="commentaires">' +
+      (data.total ? '<h2>' + data.total + (data.total > 1 ? ' commentaires' : ' commentaire') + '</h2>' : '') +
+      data.threads.map(function (t) { return one(t.c) + t.replies.map(function (r) { return one(r, true); }).join(''); }).join('') +
+      (open ? '<form class="fm cm-form" id="cm-form" novalidate><h3>Laisser un commentaire</h3>' +
+        '<p class="sb">Votre email ne sera pas publié.' + (moderate ? ' Les commentaires sont relus avant de paraître.' : '') + '</p>' +
+        '<p class="cm-to" id="cm-to" hidden></p>' +
+        '<div class="fg"><div><label for="cm-name">Nom *</label><input id="cm-name" name="author" required maxlength="120" autocomplete="name"></div>' +
+        '<div><label for="cm-mail">Email *</label><input id="cm-mail" name="email" type="email" required maxlength="254" autocomplete="email"></div>' +
+        '<div class="full"><label for="cm-text">Commentaire *</label><textarea id="cm-text" name="content" required maxlength="5000"></textarea></div></div>' +
+        '<p class="err" id="cm-err" role="alert"></p>' +
+        '<input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<button class="btn b" type="submit">Publier le commentaire</button><p class="ok" id="cm-ok" role="status"></p></form>' : '') +
+      '</section>';
+  }
+  function wireComments(a) {
+    var form = $('cm-form');
+    if (!form) return;
+    var parent = '', to = $('cm-to');
+    function setParent(id, name) {
+      parent = id;
+      to.hidden = !id;
+      to.textContent = '';
+      if (!id) return;
+      to.appendChild(document.createTextNode('Réponse à ' + name + ' '));
+      var cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.textContent = 'Annuler';
+      cancel.addEventListener('click', function () { setParent('', ''); });
+      to.appendChild(cancel);
+    }
+    document.querySelectorAll('[data-reply]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        setParent(b.getAttribute('data-reply'), b.getAttribute('data-name'));
+        form.scrollIntoView({ block: 'center' });
+        $('cm-text').focus();
+      });
+    });
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var v = function (n) { return form.elements[n].value.trim(); }, err = $('cm-err'), ok = $('cm-ok');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      if (v('_honey')) { ok.textContent = 'Merci, votre commentaire sera publié après relecture.'; ok.style.display = 'block'; form.reset(); return; }
+      if (!v('author') || !v('email') || !v('content')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre commentaire.'; err.style.display = 'block'; return; }
+      if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
+      var c = CMS.addComment({ article: a.id, parent: parent, author: v('author'), email: v('email'), content: v('content') });
+      if (!c) { err.textContent = "Votre commentaire n'a pas pu être enregistré. Réessayez plus tard."; err.style.display = 'block'; return; }
+      if (c.status === 'approved') { location.reload(); return; }
+      form.reset();
+      setParent('', '');
+      ok.textContent = 'Merci, votre commentaire sera publié après relecture.';
+      ok.style.display = 'block';
+    });
   }
 
   function related(a) {
@@ -158,7 +208,8 @@
   }
 
   function renderArticle(id) {
-    var a = all.filter(function (x) { return x.id === id; })[0];
+    /* ?preview=1 : aperçu d'un brouillon depuis l'admin, dans le navigateur de l'auteur */
+    var a = (CMS.qs('preview') ? allRaw : all).filter(function (x) { return x.id === id; })[0];
     var view = $('article-view');
     $('blog-content').style.display = 'none';
     view.style.display = 'block';
@@ -170,10 +221,10 @@
       return;
     }
 
-    document.title = a.t + ' - Live Y Dream';
-    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', a.ex);
+    document.title = a.seoT || a.t + ' - Live Y Dream';
+    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', a.seoD || a.ex);
 
-    var b = renderBody(a);
+    var b = CMS.articleHtml(a);
     var url = location.href.split('#')[0];
     var enc = encodeURIComponent;
     var wa = CMS.get('settings').whatsapp;
@@ -183,7 +234,7 @@
         '<p class="crumb"><a href="index.html">Accueil</a> / <a href="blog.html">Blog</a> / ' + e(a.cat) + '</p>' +
         '<span class="pill">' + e(a.cat).toUpperCase() + '</span>' +
         '<h1>' + e(a.t) + '</h1>' +
-        '<div class="ameta"><span class="who"><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><span>' + e(a.date) + '</span><span>' + a.min + ' min de lecture</span></div>' +
+        '<div class="ameta"><span class="who"><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><span>' + e(a.date) + '</span><span>' + e(a.min) + ' min de lecture</span></div>' +
       '</div></section>' +
 
       '<div class="w"><div class="acover ph-box">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
@@ -191,17 +242,17 @@
         '<div class="prose">' + b.html + '</div>' +
       '</article>' +
       '<aside class="aside">' +
-        (b.toc.length ? '<div class="box"><h5>Dans cet article</h5><nav class="toc" id="toc">' + b.toc.map(function (t) { return '<a href="#' + t[0] + '">' + e(t[1]) + '</a>'; }).join('') + '</nav></div>' : '') +
+        (b.toc.length ? '<div class="box"><h5>Dans cet article</h5><nav class="toc" id="toc">' + b.toc.map(function (t) { return '<a href="#' + e(t[0]) + '"' + (t[2] ? ' class="sub"' : '') + '>' + e(t[1]) + '</a>'; }).join('') + '</nav></div>' : '') +
         '<div class="box"><h5>Partager</h5><div class="share">' +
           '<a href="https://wa.me/?text=' + enc(a.t + ' ' + url) + '" target="_blank" rel="noopener">WhatsApp</a>' +
           '<a href="https://www.facebook.com/sharer/sharer.php?u=' + enc(url) + '" target="_blank" rel="noopener">Facebook</a>' +
           '<a href="https://www.linkedin.com/sharing/share-offsite/?url=' + enc(url) + '" target="_blank" rel="noopener">LinkedIn</a>' +
           '<button type="button" id="copy">Copier le lien</button></div></div>' +
-        '<div class="audit"><h3>Audit Gratuit</h3><p>Faites auditer votre communication par nos experts. Sans engagement, réponse en 24h.</p><a class="btn" href="contact.html?service=' + enc('Stratégie Digitale Complète') + '">Demander →</a></div>' +
+        '<div class="audit"><h3>' + e(T.auditT) + '</h3><p>' + e(T.auditD) + '</p><a class="btn" href="contact.html?service=' + enc('Stratégie Digitale Complète') + '">' + e(T.auditBtn) + '</a></div>' +
       '</aside></div>' +
 
       '<div class="atags">' + a.tags.map(function (t) { return '<a href="blog.html?tag=' + enc(t) + '">' + e(t) + '</a>'; }).join('') + '</div>' +
-      '<div class="abox"><i class="av">' + e(initials(a.author)) + '</i><div><b>' + e(a.author) + '</b><p>Rédigé par l\'équipe Live Y Dream, agence de communication à Lomé depuis 2013. Stratégie, création et production au service des marques d\'Afrique de l\'Ouest.</p></div></div></div>' +
+      '<div class="abox"><i class="av">' + e(initials(a.author)) + '</i><div><b>' + e(a.author) + '</b><p>' + e(T.bio) + '</p></div></div>' + commentsHtml(a) + '</div>' +
 
       '<section class="gy rel"><div class="w"><p class="k">À lire aussi</p>' +
         '<div class="rel-h"><h2 class="h2">Continuez votre lecture</h2><a class="btn ob" href="blog.html">Tous les articles</a></div>' +
@@ -210,12 +261,14 @@
             '<h3><a href="' + articleUrl(r) + '">' + e(r.t) + '</a></h3><p class="ex">' + e(r.ex) + '</p>' + footerRow(r) + '</article>';
         }).join('') + '</div></div></section>' +
 
-      '<section class="cta-s dk"><div class="w"><p class="k">Passez à l\'action</p>' +
-        '<h2 style="font-size:clamp(32px,5vw,64px)">Votre marque mérite d\'être vue</h2>' +
-        '<p class="t mu">L\'audit est gratuit. Les résultats sont réels.</p>' +
-        '<div class="actions"><a class="btn" href="contact.html">Demander un devis</a><a class="btn o" href="' + e(wa) + '" target="_blank" rel="noopener">WhatsApp direct</a></div></div></section>';
+      '<section class="cta-s dk"><div class="w"><p class="k">' + e(T.ctaK) + '</p>' +
+        '<h2 style="font-size:clamp(32px,5vw,64px)">' + e(T.ctaT) + '</h2>' +
+        '<p class="t mu">' + e(T.ctaD) + '</p>' +
+        '<div class="actions"><a class="btn" href="contact.html">' + e(T.ctaBtn) + '</a><a class="btn o" href="' + e(wa) + '" target="_blank" rel="noopener">' + e(T.ctaWa) + '</a></div></div></section>';
 
-    window.scrollTo(0, 0);
+    wireComments(a);
+    if (location.hash.indexOf('#c-') === 0 && document.getElementById(location.hash.slice(1))) document.getElementById(location.hash.slice(1)).scrollIntoView();
+    else window.scrollTo(0, 0);
 
     var copy = $('copy');
     if (copy) copy.addEventListener('click', function () {
@@ -225,7 +278,7 @@
 
     /* Barre de progression + sommaire actif */
     var rp = $('rp'); rp.style.display = 'block';
-    var heads = [].slice.call(view.querySelectorAll('.prose h2')), links = [].slice.call(view.querySelectorAll('#toc a'));
+    var heads = [].slice.call(view.querySelectorAll('.prose h2,.prose h3')), links = [].slice.call(view.querySelectorAll('#toc a'));
     function onScroll() {
       var h = document.documentElement;
       rp.style.width = Math.min(100, (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100) + '%';

@@ -20,8 +20,8 @@
         <h1 id="hero-title"></h1>
         <p class="lead mu" id="hero-text"></p>
         <div class="actions">
-          <a class="btn" href="contact.html">Audit gratuit</a>
-          <a class="btn o" href="campagnes.html">Voir nos campagnes</a>
+          <a class="btn" href="contact.html" data-t="home.btn1">Audit gratuit</a>
+          <a class="btn o" href="campagnes.html" data-t="home.btn2">Voir nos campagnes</a>
         </div>
       </section>
       <div class="hero-card" id="hero-card" aria-label="Photo équipe Live Y Dream"></div>
@@ -31,12 +31,12 @@
  
   <section class="sec" style="padding-top:70px">
     <div class="w">
-      <p class="k">Le diagnostic</p>
+      <p class="k" data-t="home.diagK">Le diagnostic</p>
       <div class="diag-head">
-        <h2 class="h2">Votre entreprise mérite mieux que l'invisibilité</h2>
+        <h2 class="h2" data-t="home.diagT">Votre entreprise mérite mieux que l'invisibilité</h2>
         <div>
-          <p>Vous avez un produit de qualité. Vous travaillez dur. Et pourtant vos concurrents captent les clients qui vous reviennent de droit pas parce qu'ils sont meilleurs, mais parce qu'ils sont <strong>plus visibles.</strong></p>
-          <a class="btn b" href="contact.html">Je veux dominer mon marché</a>
+          <p data-t="home.diagP">Vous avez un produit de qualité. Vous travaillez dur. Et pourtant vos concurrents captent les clients qui vous reviennent de droit pas parce qu'ils sont meilleurs, mais parce qu'ils sont <strong>plus visibles.</strong></p>
+          <a class="btn b" href="contact.html" data-t="home.diagBtn">Je veux dominer mon marché</a>
         </div>
       </div>
       <div class="g4" id="problems"></div>
@@ -45,11 +45,11 @@
  
   <section class="sec gy">
     <div class="w">
-      <p class="k">Ce que nous faisons</p>
-      <h2 class="h2" style="margin-top:28px;max-width:520px">Un écosystème complet pour votre croissance</h2>
+      <p class="k" data-t="home.ecoK">Ce que nous faisons</p>
+      <h2 class="h2" style="margin-top:28px;max-width:520px" data-t="home.ecoT">Un écosystème complet pour votre croissance</h2>
       <div class="eco-head" style="margin-top:36px">
-        <p>Nous ne vendons pas du graphisme ou de la vidéo. Nous apportons des <strong>nouveaux clients, de la visibilité et de la crédibilité.</strong></p>
-        <a class="btn ob" href="services.html">Tout nos services</a>
+        <p data-t="home.ecoP">Nous ne vendons pas du graphisme ou de la vidéo. Nous apportons des <strong>nouveaux clients, de la visibilité et de la crédibilité.</strong></p>
+        <a class="btn ob" href="services.html" data-t="home.ecoBtn">Tout nos services</a>
       </div>
       <div id="services"></div>
       <div class="promo" id="plan"></div>
@@ -57,36 +57,36 @@
   </section> 
   <section class="sec">
     <div class="w">
-      <p class="k">Nos réalisations</p>
+      <p class="k" data-t="home.campK">Nos réalisations</p>
       <div class="camp-head">
-        <h2 class="h2">Des campagnes qui ont <em>changé la donne</em></h2>
+        <h2 class="h2" data-t="home.campT">Des campagnes qui ont <em>changé la donne</em></h2>
       </div>
-      <a class="btn ob" href="campagnes.html" style="margin:-24px 0 40px">Voir tout le portfolio</a>
+      <a class="btn ob" href="campagnes.html" style="margin:-24px 0 40px" data-t="home.campBtn">Voir tout le portfolio</a>
       <div class="camps" id="camps"></div>
     </div>
   </section>
 
   <section class="trust gy">
-    <div class="w"><p class="k">Ils nous font confiance</p></div>
+    <div class="w"><p class="k" data-t="home.trustK">Ils nous font confiance</p></div>
     <div class="lg-mq" aria-label="Ils nous font confiance"><div class="lg-track" id="logos"></div></div>
   </section>
 
   <section class="sec">
     <div class="w">
-      <p class="k">Ce que disent nos clients</p>
-      <h2 class="h2 testi-head">Des résultats qui parlent d'eux-mêmes</h2>
+      <p class="k" data-t="home.testiK">Ce que disent nos clients</p>
+      <h2 class="h2 testi-head" data-t="home.testiT">Des résultats qui parlent d'eux-mêmes</h2>
       <div class="tg" id="testi"></div>
     </div>
   </section>
  
   <section class="cta-s dk">
     <div class="w">
-      <p class="k">Passez à l'action</p>
+      <p class="k" data-t="home.ctaK">Passez à l'action</p>
       <h2 id="cta-title"></h2>
       <p class="t mu" id="cta-text"></p>
       <div class="actions">
-        <a class="btn" id="cta-wa" href="#">Audit gratuit sur whatsapp</a>
-        <a class="btn o" href="contact.html">Remplir le formulaire</a>
+        <a class="btn" id="cta-wa" href="#" data-t="home.ctaBtn1">Audit gratuit sur whatsapp</a>
+        <a class="btn o" href="contact.html" data-t="home.ctaBtn2">Remplir le formulaire</a>
       </div>
     </div>
   </section>
@@ -94,6 +94,7 @@
 
 <div data-lyd="footer"></div>
 
+<script src="js/content.js"></script>
 <script src="js/cms.js"></script>
 <script>
 (function () {
@@ -104,7 +105,7 @@
 
   $('hero-title').textContent = s.hero.title;
   $('hero-text').textContent = s.hero.text;
-  if (s.hero.image) $('hero-card').innerHTML = '<img src="' + e(s.hero.image) + '" alt="Équipe Live Y Dream">';
+  if (CMS.src(s.hero.image)) $('hero-card').innerHTML = '<img src="' + e(CMS.src(s.hero.image)) + '" alt="Équipe Live Y Dream">';
 
   $('stats').innerHTML = s.stats.map(function (x) {
     return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
@@ -124,15 +125,15 @@
   $('plan').innerHTML = '<div><p class="k">' + e(pl.k) + '</p><h3>' + e(pl.t) + '</h3><p>' + e(pl.d) + '</p>' +
     '<a class="btn" href="services.html#tarifs">' + e(pl.cta) + '</a></div><div class="price">' + e(pl.price) + '</div>';
 
-  $('camps').innerHTML = CMS.get('campaigns').slice(0, 4).map(function (c) {
-    return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (c.img ? '<img src="' + e(c.img) + '" alt="' + e(c.t) + '">' : e(c.client)) + '</div>' +
+  $('camps').innerHTML = CMS.published(CMS.get('campaigns')).slice(0, 4).map(function (c) {
+    return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.t) + '">' : e(c.client)) + '</div>' +
       '<p class="cat">' + e(c.cat) + '</p><h4>' + e(c.t) + '</h4></a>';
   }).join('');
 
   /* Défilement continu : la liste est doublée pour une boucle sans coupure */
   var logoItems = CMS.get('clients').map(function (l) {
     var c = typeof l === 'string' ? { name: '', img: l } : l;
-    return '<div class="lg">' + (c.img ? '<img src="' + e(c.img) + '" alt="' + e(c.name) + '">' : '<span>' + e(c.name) + '</span>') + '</div>';
+    return '<div class="lg">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.name) + '">' : '<span>' + e(c.name) + '</span>') + '</div>';
   }).join('');
   $('logos').innerHTML = logoItems + logoItems.replace(/class="lg"/g, 'class="lg" aria-hidden="true"');
 
@@ -142,7 +143,7 @@
 
   var c = s.cta;
   $('cta-title').textContent = c.title;
-  $('cta-text').innerHTML = c.text;
+  $('cta-text').innerHTML = CMS.sanitize(c.text);
   $('cta-wa').href = s.whatsapp;
   $('cta-wa').target = '_blank';
 })();

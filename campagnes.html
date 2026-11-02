@@ -16,9 +16,9 @@
 <main>
   <section class="dk phero">
     <div class="w">
-      <span class="k">Nos réalisations</span>
-      <h1>Campagnes qui ont <em>changé la donne</em></h1>
-      <p class="sub mu">Chaque projet est une histoire de transformation. Découvrez comment nous avons aidé nos clients à dominer leur marché.</p>
+      <span class="k" data-t="camp.heroK">Nos réalisations</span>
+      <h1 data-t="camp.heroT">Campagnes qui ont <em>changé la donne</em></h1>
+      <p class="sub mu" data-t="camp.heroP">Chaque projet est une histoire de transformation. Découvrez comment nous avons aidé nos clients à dominer leur marché.</p>
     </div>
   </section>
 
@@ -33,23 +33,24 @@
 
   <section class="cta-l">
     <div class="w">
-      <span class="k">Votre projet ici ?</span>
-      <h2>Prêt à créer votre prochaine grande campagne ?</h2>
-      <p class="mu">UNICEF, Woodin, UBA, Ecobank nous ont fait confiance. Pourquoi pas vous ?</p>
+      <span class="k" data-t="camp.ctaK">Votre projet ici ?</span>
+      <h2 data-t="camp.ctaT">Prêt à créer votre prochaine grande campagne ?</h2>
+      <p class="mu" data-t="camp.ctaP">UNICEF, Woodin, UBA, Ecobank nous ont fait confiance. Pourquoi pas vous ?</p>
       <div class="row-btn">
-        <a class="btn b" href="contact.html">Discuter de mon projet</a>
-        <a class="btn ob" id="wa" href="#" target="_blank" rel="noopener">WhatsApp direct</a>
+        <a class="btn b" href="contact.html" data-t="camp.ctaBtn1">Discuter de mon projet</a>
+        <a class="btn ob" id="wa" href="#" target="_blank" rel="noopener" data-t="camp.ctaBtn2">WhatsApp direct</a>
       </div>
     </div>
   </section>
 </main>
 
 <div data-lyd="footer"></div>
+<script src="js/content.js"></script>
 <script src="js/cms.js"></script>
 <script>
 (function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
-  var camps = CMS.get('campaigns');
+  var camps = CMS.published(CMS.get('campaigns'));
   var slug = function (c) { return c.client.toLowerCase().replace(/\s+/g, '-'); };
   var FILTERS = [['', 'Tout voir'], ['Digital', 'Digital'], ['Vidéo & Photo', 'Vidéo & Photo'], ['Événementiel', 'Événementiel'], ['Identité', 'Identité']];
   var current = '';
@@ -59,11 +60,11 @@
 
   function card(c) {
     return '<article class="cc" id="' + e(slug(c)) + '">' +
-      '<div class="im ph-box">' + CMS.ph(c.img, c.cat, c.t) + (c.img ? '<span class="ph-l">' + e(c.cat) + '</span>' : '') + '</div>' +
+      '<div class="im ph-box">' + CMS.ph(c.img, c.cat, c.t) + (CMS.src(c.img) ? '<span class="ph-l">' + e(c.cat) + '</span>' : '') + '</div>' +
       '<h3>' + e(c.t) + '</h3><p class="by">' + e(c.client) + (c.year ? ' · ' + e(c.year) : '') + '</p>' +
       '<p class="ds">' + e(c.d) + '</p>' +
       '<div class="tags">' + c.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div>' +
-      (c.res.length ? '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
+      (c.res && c.res.length ? '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
       c.res.map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div></div>' : '') +
       '<a class="sim" href="' + CMS.contactUrl('Stratégie Digitale Complète', '&projet=' + encodeURIComponent(c.t)) + '">Je veux un projet similaire →</a></article>';
   }
