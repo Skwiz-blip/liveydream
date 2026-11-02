@@ -580,7 +580,7 @@
 
   var NAV = [
     ['services.html', 'Services'], ['campagnes.html', 'Campagnes'],
-    ['blog.html', 'Blog'], ['a-propos.html', 'À propos'], ['contact.html', 'Contact']
+    ['blog.html', 'Blog'], ['a-propos.html', 'À propos'], ['carrieres.html', 'Carrières'], ['contact.html', 'Contact']
   ];
 
   CMS.header = function (active) {

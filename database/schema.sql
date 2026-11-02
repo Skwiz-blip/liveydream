@@ -205,7 +205,11 @@ create table public.jobs (
   title text not null check (char_length(title) between 1 and 200),
   contract_type text not null default '',
   location text not null default '',
+  -- Présentation, puis les trois listes de la page de l'offre
   description text not null default '',
+  missions text[] not null default '{}',
+  requirements text[] not null default '{}',
+  benefits text[] not null default '{}',
   status public.content_status not null default 'draft',
   posted_on date not null default current_date,
   sort_order integer not null default 0,
@@ -528,9 +532,6 @@ create trigger contact_messages_limit before insert on public.contact_messages
 create trigger job_applications_limit before insert on public.job_applications
   for each row execute function public.limit_visitor_submissions('5');
 
--- Vide la corbeille et les indésirables, comme WordPress après 30 jours.
--- À planifier une fois pg_cron activé sur le projet :
---   select cron.schedule('vider-commentaires', '0 3 * * *', 'select public.purge_comments()');
 create function public.purge_comments(older_than interval default interval '30 days')
 returns integer language plpgsql set search_path = '' as $$
 declare
@@ -545,7 +546,6 @@ $$;
 
 revoke execute on function public.purge_comments(interval) from public, anon, authenticated;
 
--- La bulle de la colonne « En réponse à » (le filtre de sécurité reste celui de comments)
 create view public.article_comment_counts with (security_invoker = true) as
   select
     article_id,
@@ -553,13 +553,7 @@ create view public.article_comment_counts with (security_invoker = true) as
     count(*) filter (where status = 'pending') as pending
   from public.comments
   group by article_id;
-
--- -----------------------------------------------------------------------------
--- 10. Droits d'accès
---     Supabase ouvre par défaut toutes les tables aux visiteurs (anon) et aux
---     comptes connectés (authenticated). On ferme tout, puis on rouvre au cas par cas.
--- -----------------------------------------------------------------------------
-
+ 
 do $$
 declare
   t text;

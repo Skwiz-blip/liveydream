@@ -1091,6 +1091,15 @@
   color:var(--mute);
   max-width:560px
 }
+.job h3 a:hover{text-decoration:underline}
+.job-a{display:flex;flex-wrap:wrap;gap:10px;flex:none}
+.job-back{font-size:13px;font-weight:600;margin-bottom:24px}
+.job-back a:hover{text-decoration:underline}
+.job-d{max-width:760px}
+.job-d h2{font-size:clamp(26px,3vw,38px);line-height:1.15;letter-spacing:-.03em;font-weight:700;margin-bottom:8px}
+.job-d > .meta{font-size:13px;margin-bottom:24px}
+.job-d .prose h3{margin-top:30px}
+.job-d .btn{margin-top:16px}
 .job-empty{
   background:var(--card);
   padding:40px;

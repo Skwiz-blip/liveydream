@@ -28,6 +28,7 @@
       <p class="k" data-t="jobs.offresK">Offres d'emploi</p>
       <h2 class="h2" style="margin:22px 0 36px" data-t="jobs.offresT">Postes ouverts</h2>
       <div id="jobs"></div>
+      <div id="job-detail" hidden></div>
     </div>
   </section>
 
@@ -68,13 +69,16 @@
 (function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
   var s = CMS.get('settings'), jobs = CMS.published(CMS.get('jobs')), careers = CMS.get('careers');
+  var idOf = function (j) { return j.id || CMS.slugify(j.t); };
+  var meta = function (j) { return e([j.type, j.lieu, j.date].filter(Boolean).join(' · ')); };
+  var offerUrl = function (j) { return 'carrieres.html?offre=' + encodeURIComponent(idOf(j)) + (CMS.qs('preview') ? '&preview=1' : '') + '#offres'; };
   var SPONT = careers.postes[0];
   CMS.mount('carrieres.html');
 
   $('jobs').innerHTML = jobs.length ? jobs.map(function (j, i) {
-    return '<div class="job"><div><h3>' + e(j.t) + '</h3><p class="meta">' + e([j.type, j.lieu, j.date].filter(Boolean).join(' · ')) + '</p>' +
+    return '<div class="job"><div><h3><a href="' + offerUrl(j) + '">' + e(j.t) + '</a></h3><p class="meta">' + meta(j) + '</p>' +
       (j.d ? '<p class="ex">' + e(j.d) + '</p>' : '') + '</div>' +
-      '<a class="btn b" href="carrieres.html?poste=' + encodeURIComponent(j.t) + '#postuler">Postuler →</a></div>';
+      '<div class="job-a"><a class="btn ob" href="' + offerUrl(j) + '">Voir l\'offre</a><a class="btn b" href="carrieres.html?poste=' + encodeURIComponent(j.t) + '#postuler">Postuler →</a></div></div>';
   }).join('') : '<div class="job-empty"><p>Aucune offre ouverte pour le moment.</p><p class="mu" style="color:var(--mute);font-size:12px;margin-top:6px">Envoyez-nous une candidature spontanée : nous gardons votre profil.</p><a class="btn b" href="#postuler" style="margin-top:18px">Candidature spontanée</a></div>';
 
   $('why').innerHTML = careers.why.map(function (w, i) { return '<div class="wy"><b>0' + (i + 1) + '</b><div><h4>' + e(w[0]) + '</h4><p>' + e(w[1]) + '</p></div></div>'; }).join('');
@@ -83,6 +87,29 @@
   $('f-poste').innerHTML = '<option value="">Choisissez un poste</option>' + postes.map(function (p) { return '<option>' + e(p) + '</option>'; }).join('');
   var want = CMS.qs('poste');
   $('f-poste').value = want && postes.indexOf(want) > -1 ? want : (jobs.length ? '' : SPONT);
+
+  /* Page d'une offre : ?offre=… (les brouillons seulement dans un aperçu ouvert depuis l'admin) */
+  var offerId = CMS.qs('offre');
+  if (offerId) {
+    var pool = CMS.qs('preview') ? CMS.get('jobs') : jobs;
+    var j = pool.filter(function (x) { return idOf(x) === offerId; })[0], box = $('job-detail');
+    function list(title, items) {
+      return items && items.length ? '<h3>' + e(title) + '</h3><ul>' + items.map(function (x) { return '<li>' + e(x) + '</li>'; }).join('') + '</ul>' : '';
+    }
+    $('jobs').hidden = true;
+    box.hidden = false;
+    box.innerHTML = '<p class="job-back"><a href="carrieres.html' + (CMS.qs('preview') ? '?preview=1' : '') + '#offres">← Toutes les offres</a></p>' + (j
+      ? '<article class="job-d"><h2>' + e(j.t) + '</h2><p class="meta">' + meta(j) + '</p>' +
+        '<div class="prose">' + (j.d ? '<p>' + e(j.d) + '</p>' : '') +
+        list('Missions', j.missions) + list('Profil recherché', j.profil) + list('Ce que nous offrons', j.avantages) + '</div>' +
+        '<a class="btn b" href="#postuler" id="job-apply">Postuler à cette offre →</a></article>'
+      : '<div class="job-empty"><p>Cette offre n\'est plus disponible.</p><p class="mu" style="color:var(--mute);font-size:12px;margin-top:6px">Elle a peut-être été pourvue. Les autres offres et la candidature spontanée restent ouvertes.</p></div>');
+    if (j) {
+      document.title = j.t + ' - Carrières Live Y Dream';
+      if (postes.indexOf(j.t) < 0) { $('f-poste').insertAdjacentHTML('beforeend', '<option>' + e(j.t) + '</option>'); postes.push(j.t); }
+      $('f-poste').value = j.t;
+    }
+  }
 
   $('form').addEventListener('submit', function (ev) {
     ev.preventDefault();
