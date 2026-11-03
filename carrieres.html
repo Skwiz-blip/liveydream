@@ -6,7 +6,7 @@
 <script>
 /* Si la page casse chez un visiteur, l'erreur s'affiche en bas de l'écran (et dans la console) : une capture suffit pour comprendre */
 (function () {
-  var CHECK = '#nav a', errors = [], box = null, done = false;
+  var CHECK = 'header.hd', errors = [], box = null, done = false;
   function log(msg) {
     errors.push(msg);
     try { console.error('[LYD] ' + msg); } catch (e) {}
@@ -52,13 +52,14 @@
     };
     b[1].onclick = function () { box.style.display = 'none'; };
   }
-  /* La page est jugée construite quand CHECK existe ; sinon on le signale, même sans erreur */
+  /* La page est jugée construite quand CHECK existe et se voit ; sinon on le signale, même sans erreur */
   function check(late) {
     if (done) return;
-    var built = !!document.querySelector(CHECK);
-    if (late && built && !errors.length) return;
+    var el = document.querySelector(CHECK), hidden = !!el && !el.getClientRects().length;
+    if (late && el && !hidden && !errors.length) return;
     done = true;
-    if (!built) log(late ? "Après 20 secondes, la page n'est toujours pas construite (« " + CHECK + ' » absent).' : "La page ne s'est pas construite (« " + CHECK + ' » absent).');
+    if (!el) log(late ? "Après 20 secondes, la page n'est toujours pas construite (« " + CHECK + ' » absent).' : "La page ne s'est pas construite (« " + CHECK + ' » absent).');
+    else if (hidden) log('La page est construite mais cachée (« ' + CHECK + " » masqué). Un bloqueur de publicités en est sans doute la cause : désactivez-le pour ce site.");
     show();
   }
   window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
