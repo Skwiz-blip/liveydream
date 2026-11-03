@@ -3,9 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+/* Si la page casse chez un visiteur, l'erreur s'affiche en bas de l'écran (et dans la console) : une capture suffit pour comprendre */
+(function () {
+  var CHECK = '#nav a', errors = [], box = null, done = false;
+  function log(msg) {
+    errors.push(msg);
+    try { console.error('[LYD] ' + msg); } catch (e) {}
+    if (done) show();
+  }
+  window.addEventListener('error', function (ev) {
+    var t = ev.target, f = ev.filename || '';
+    if (t && t !== window && t.tagName) {
+      if (t.tagName === 'SCRIPT' || (t.tagName === 'LINK' && /stylesheet/.test(t.rel))) log('Fichier non chargé : ' + (t.src || t.href));
+      return;
+    }
+    if (/^(chrome|moz|safari|safari-web)-extension:/.test(f) || /ResizeObserver loop/.test(ev.message)) return;
+    log((ev.message || 'Erreur inconnue') + (f ? ' (' + f.split('/').pop() + ', ligne ' + ev.lineno + ':' + ev.colno + ')' : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (ev) {
+    var r = ev.reason;
+    log('Opération échouée : ' + (r && r.message ? r.message : String(r)));
+  });
+  function show() {
+    if (!document.body || !errors.length) return;
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'lyd-err';
+      box.setAttribute('aria-live', 'assertive');
+      box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;max-height:60vh;overflow:auto;background:#fff;color:#111;border:2px solid #b3261e;padding:14px 16px;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;text-align:left;box-shadow:0 8px 30px rgba(0,0,0,.35)';
+      document.body.appendChild(box);
+    }
+    var btn = 'margin:0 8px 0 0;padding:7px 14px;border:1px solid #111;background:#fff;color:#111;font:inherit;cursor:pointer';
+    box.style.display = 'block';
+    box.innerHTML = '<strong style="color:#b3261e">Une erreur empêche cette page de fonctionner correctement.</strong><br>Faites une capture de ce cadre et envoyez-la à l\'équipe Live Y Dream.' +
+      '<pre style="white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:10px;background:#f4f4f4;color:#111;font:12px/1.45 Consolas,Menlo,monospace"></pre>' +
+      '<button type="button" style="' + btn + '">Copier le détail</button><button type="button" style="' + btn + '">Fermer</button>';
+    var pre = box.querySelector('pre'), b = box.querySelectorAll('button');
+    pre.textContent = errors.join('\n') + '\n\nPage : ' + location.href + '\nNavigateur : ' + navigator.userAgent + '\nHeure : ' + new Date().toString();
+    b[0].onclick = function () {
+      function copied() { b[0].textContent = 'Copié'; }
+      function select() {
+        var r = document.createRange(), s = window.getSelection();
+        r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r);
+        try { if (document.execCommand('copy')) copied(); } catch (e) {}
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(pre.textContent).then(copied, select); else select();
+    };
+    b[1].onclick = function () { box.style.display = 'none'; };
+  }
+  /* La page est jugée construite quand CHECK existe ; sinon on le signale, même sans erreur */
+  function check(late) {
+    if (done) return;
+    var built = !!document.querySelector(CHECK);
+    if (late && built && !errors.length) return;
+    done = true;
+    if (!built) log(late ? "Après 20 secondes, la page n'est toujours pas construite (« " + CHECK + ' » absent).' : "La page ne s'est pas construite (« " + CHECK + ' » absent).');
+    show();
+  }
+  window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
+  setTimeout(function () { check(true); }, 20000);
+})();
+</script>
 <title>Contact - Live Y Dream</title>
 <meta name="description" content="Parlons de votre projet : devis transparent sous 24h, réponse garantie en moins d'une heure sur WhatsApp.">
-<link rel="preload" href="fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/pages.css">
 </head>
