@@ -507,8 +507,7 @@ begin
   return new;
 end;
 $$;
-
--- Permet « Restaurer » et le vidage de la corbeille
+ 
 create function public.track_comment_status()
 returns trigger language plpgsql set search_path = '' as $$
 begin

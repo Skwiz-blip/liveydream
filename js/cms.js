@@ -154,7 +154,7 @@
 
     /* Commentaires : jamais publié. Sans base de données, un visiteur ne pourrait rien transmettre :
        le formulaire n'apparaît donc que dans le navigateur de l'admin qui l'active. */
-    discussion: { enabled: false, moderate: true },
+    discussion: { enabled: true, moderate: true },
 
     /* Textes des pages modifiés dans l'admin (data-t) et référencement par page */
     texts: {},
@@ -286,7 +286,7 @@
   };
 
   /* Clés de contenu publiques (jamais les messages ni les candidatures) */
-  var CONTENT_KEYS = ['settings', 'contact', 'problems', 'services', 'plan', 'plans', 'process', 'campaigns', 'jobs', 'careers', 'blogTexts', 'forms', 'texts', 'seo', 'clients', 'testimonials', 'articles', 'about'];
+  var CONTENT_KEYS = ['settings', 'contact', 'problems', 'services', 'plan', 'plans', 'process', 'campaigns', 'jobs', 'careers', 'blogTexts', 'forms', 'texts', 'seo', 'clients', 'testimonials', 'articles', 'about', 'discussion'];
   var FILTERED_KEYS = { articles: 1, campaigns: 1, jobs: 1 };
   /* Données de visiteurs : gardées lors d'un retour à la version en ligne, jamais publiées telles quelles */
   var PRIVATE_KEYS = ['messages', 'applications', 'comments'];
@@ -519,9 +519,11 @@
     return out;
   };
   /* Commentaires approuvés d'un article, regroupés sous le commentaire de départ */
-  CMS.commentThreads = function (articleId) {
-    var list = (CMS.get('comments') || []).filter(function (c) { return c.article === articleId && c.status === 'approved'; })
-      .sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+  CMS.commentThreads = function (articleId, extra) {
+    var seen = {}, list = (CMS.get('comments') || []).concat(extra || []).filter(function (c) {
+      if (c.article !== articleId || c.status !== 'approved' || seen[c.id]) return false;
+      return (seen[c.id] = true);
+    }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
     var byId = {}, threads = [];
     list.forEach(function (c) { byId[c.id] = { c: c, replies: [] }; });
     list.forEach(function (c) {
@@ -537,6 +539,48 @@
     box.push(c);
     return CMS.set('comments', box) ? c : null;
   };
+  /* Dans la base, un article est retrouvé par son adresse (slug) */
+  function slugOf(id) { var s = String(id || ''); return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(s) ? s : slugify(s); }
+  CMS.articleSlug = slugOf;
+  var dbArticles = {};
+  function dbArticle(id) {
+    var slug = slugOf(id);
+    if (!dbArticles[slug]) {
+      dbArticles[slug] = DB.select('articles', 'select=id,allow_comments&slug=eq.' + encodeURIComponent(slug), { anon: true })
+        .then(function (r) { return (r && r[0]) || null; }, function (e) { delete dbArticles[slug]; throw e; });
+    }
+    return dbArticles[slug];
+  }
+  CMS.loadComments = function (articleId) {
+    if (!window.DB) return Promise.resolve([]);
+    return DB.select('comments', 'select=id,parent_id,author_name,content,created_at,articles!inner(slug)&articles.slug=eq.' + encodeURIComponent(slugOf(articleId)) + '&order=created_at.asc', { anon: true })
+      .then(function (rows) {
+        return (rows || []).map(function (c) {
+          return { id: c.id, article: articleId, parent: c.parent_id || '', author: c.author_name, content: c.content, status: 'approved', date: c.created_at };
+        });
+      });
+  };
+  var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  CMS.postComment = function (data) {
+    if (!window.DB) return Promise.reject(new Error('Base de données indisponible.'));
+    return dbArticle(data.article).then(function (art) {
+      if (!art || art.allow_comments === false) {
+        var closed = new Error('Les commentaires ne sont pas encore ouverts sur cet article.');
+        closed.code = 'closed';
+        throw closed;
+      }
+      return DB.insert('comments', {
+        article_id: art.id,
+        parent_id: UUID.test(data.parent || '') ? data.parent : null,
+        author_name: String(data.author).slice(0, 120),
+        author_email: data.email,
+        content: String(data.content).slice(0, 5000)
+      }, { anon: true });
+    }).then(function () {
+      return { status: CMS.get('discussion').moderate === false ? 'approved' : 'pending' };
+    });
+  };
+
   CMS.isPublished = function () {
     return JSON.stringify(CMS.publishData()) === JSON.stringify(PUB);
   };
@@ -548,8 +592,17 @@
     return n;
   };
 
-  /* Envoi d'un formulaire : par email si une adresse est réglée dans l'admin, sinon copie locale.
+  /* Envoi d'un formulaire : enregistré dans la base (boîte Messages de l'admin), et par email si une adresse est réglée.
      Résultat : { sent: true } si l'agence l'a reçu, { sent: false } sinon. */
+  function cut(v, n) { return String(v || '').trim().slice(0, n); }
+  var FORM_TABLES = {
+    messages: { table: 'contact_messages', row: function (d) {
+      return { name: cut(d.nom, 120), company: cut(d.entreprise, 200), email: d.email, whatsapp: cut(d.whatsapp, 40), need: cut(d.besoin, 200), budget: cut(d.budget, 100), message: cut(d.message, 5000) };
+    } },
+    applications: { table: 'job_applications', row: function (d) {
+      return { applied_for: cut(d.poste, 200), name: cut(d.nom, 120), email: d.email, whatsapp: cut(d.whatsapp, 40), cv_url: /^https?:\/\//i.test(d.cv || '') ? cut(d.cv, 500) : null, message: cut(d.message, 5000) };
+    } }
+  };
   CMS.sendForm = function (kind, data, subject) {
     var f = CMS.get('forms') || {};
     var to = String((kind === 'applications' && f.jobsEmail) || f.email || '').trim();
@@ -558,7 +611,22 @@
       box.push(data);
       CMS.set(kind, box);
     }
-    if (!to) { keep(); return Promise.resolve({ sent: false }); }
+    var t = FORM_TABLES[kind];
+    var stored = t && window.DB ? DB.insert(t.table, t.row(data), { anon: true }).then(function () { return true; }, function (e) {
+      try { console.error('[LYD] Formulaire non enregistré dans la base : ' + e.message); } catch (x) {}
+      return false;
+    }) : Promise.resolve(false);
+    return stored.then(function (inDb) {
+      if (!to) {
+        if (!inDb) keep();
+        return { sent: inDb };
+      }
+      return mail().then(function (r) {
+        if (!r.sent && !inDb) keep();
+        return { sent: r.sent || inDb, failed: !r.sent && !inDb };
+      });
+    });
+    function mail() {
     var payload = {};
     Object.keys(data).forEach(function (k) { if (data[k] && k !== 'id') payload[k] = data[k]; });
     payload._subject = subject;
@@ -573,9 +641,9 @@
       if (String(j.success) !== 'true') throw new Error('refus');
       return { sent: true };
     }).catch(function () {
-      keep();
-      return { sent: false, failed: true };
+      return { sent: false };
     });
+    }
   };
 
   var NAV = [

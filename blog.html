@@ -110,6 +110,8 @@
 
 <div data-lyd="footer"></div>
 <script src="js/content.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
 <script src="js/cms.js"></script>
 <script>
 (function () {
@@ -193,8 +195,8 @@
   /* ---------- Page article ---------- */
 
   /* ---------- Commentaires ---------- */
-  function commentsHtml(a) {
-    var data = CMS.commentThreads(a.id), open = CMS.get('discussion').enabled && a.allowComments !== false;
+  function commentsHtml(a, extra) {
+    var data = CMS.commentThreads(a.id, extra), open = CMS.get('discussion').enabled && a.allowComments !== false;
     if (!data.total && !open) return '';
     function when(d) { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
     function one(c, isReply) {
@@ -248,13 +250,40 @@
       if (v('_honey')) { ok.textContent = 'Merci, votre commentaire sera publié après relecture.'; ok.style.display = 'block'; form.reset(); return; }
       if (!v('author') || !v('email') || !v('content')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre commentaire.'; err.style.display = 'block'; return; }
       if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
-      var c = CMS.addComment({ article: a.id, parent: parent, author: v('author'), email: v('email'), content: v('content') });
-      if (!c) { err.textContent = "Votre commentaire n'a pas pu être enregistré. Réessayez plus tard."; err.style.display = 'block'; return; }
-      if (c.status === 'approved') { location.reload(); return; }
-      form.reset();
-      setParent('', '');
-      ok.textContent = 'Merci, votre commentaire sera publié après relecture.';
-      ok.style.display = 'block';
+      var send = form.querySelector('button[type="submit"]');
+      send.disabled = true;
+      CMS.postComment({ article: a.id, parent: parent, author: v('author'), email: v('email'), content: v('content') }).then(function (r) {
+        send.disabled = false;
+        form.reset();
+        setParent('', '');
+        if (r.status === 'approved') { loadComments(a, 'Merci, votre commentaire est publié.'); return; }
+        ok.textContent = 'Merci, votre commentaire sera publié après relecture.';
+        ok.style.display = 'block';
+      }, function (x) {
+        send.disabled = false;
+        err.textContent = x.code === 'closed' ? x.message : "Votre commentaire n'a pas pu être envoyé. " + x.message;
+        err.style.display = 'block';
+      });
+    });
+  }
+  /* Commentaires approuvés de la base : la section est redessinée, la saisie en cours est gardée */
+  function loadComments(a, notice) {
+    CMS.loadComments(a.id).then(function (list) {
+      var sec = $('commentaires');
+      if (!sec || (!list.length && !notice)) return;
+      var keep = {};
+      ['cm-name', 'cm-mail', 'cm-text'].forEach(function (id) { if ($(id)) keep[id] = $(id).value; });
+      var tmp = document.createElement('div');
+      tmp.innerHTML = commentsHtml(a, list);
+      if (!tmp.firstChild) return;
+      sec.parentNode.replaceChild(tmp.firstChild, sec);
+      Object.keys(keep).forEach(function (id) { if ($(id)) $(id).value = keep[id]; });
+      wireComments(a);
+      if (notice && $('cm-ok')) { $('cm-ok').textContent = notice; $('cm-ok').style.display = 'block'; }
+      var target = /^#c-[\w-]+$/.test(location.hash) && document.querySelector(location.hash);
+      if (target) target.scrollIntoView();
+    }, function (e) {
+      try { console.error('[LYD] Commentaires non chargés : ' + e.message); } catch (x) {}
     });
   }
 
@@ -328,6 +357,7 @@
         '<div class="actions"><a class="btn" href="contact.html">' + e(T.ctaBtn) + '</a><a class="btn o" href="' + e(wa) + '" target="_blank" rel="noopener">' + e(T.ctaWa) + '</a></div></div></section>';
 
     wireComments(a);
+    loadComments(a);
     if (location.hash.indexOf('#c-') === 0 && document.getElementById(location.hash.slice(1))) document.getElementById(location.hash.slice(1)).scrollIntoView();
     else window.scrollTo(0, 0);
 
