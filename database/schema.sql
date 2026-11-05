@@ -230,6 +230,11 @@ create table public.contact_messages (
   need text not null default '' check (char_length(need) <= 200),
   budget text not null default '' check (char_length(budget) <= 100),
   message text not null default '' check (char_length(message) <= 5000),
+  source text not null default '' check (char_length(source) <= 60),
+  utm_source text not null default '' check (char_length(utm_source) <= 200),
+  utm_medium text not null default '' check (char_length(utm_medium) <= 200),
+  utm_campaign text not null default '' check (char_length(utm_campaign) <= 200),
+  referrer text not null default '' check (char_length(referrer) <= 200),
   status public.request_status not null default 'new',
   sender_ip inet,
   created_at timestamptz not null default now(),
@@ -245,6 +250,11 @@ create table public.job_applications (
   whatsapp text not null check (char_length(whatsapp) between 1 and 40),
   cv_url text check (cv_url is null or (char_length(cv_url) <= 500 and cv_url ~* '^https?://')),
   message text not null default '' check (char_length(message) <= 5000),
+  source text not null default '' check (char_length(source) <= 60),
+  utm_source text not null default '' check (char_length(utm_source) <= 200),
+  utm_medium text not null default '' check (char_length(utm_medium) <= 200),
+  utm_campaign text not null default '' check (char_length(utm_campaign) <= 200),
+  referrer text not null default '' check (char_length(referrer) <= 200),
   status public.request_status not null default 'new',
   sender_ip inet,
   created_at timestamptz not null default now(),
@@ -581,8 +591,8 @@ grant update (display_name, role, is_active, must_change_password) on table publ
 -- Ce qu'un visiteur peut envoyer et relire : l'email et l'adresse IP d'un commentaire restent inaccessibles
 grant select (id, article_id, parent_id, author_name, content, created_at) on table public.comments to anon;
 grant insert (article_id, parent_id, author_name, author_email, content) on table public.comments to anon;
-grant insert (name, company, email, whatsapp, need, budget, message) on table public.contact_messages to anon, authenticated;
-grant insert (job_id, applied_for, name, email, whatsapp, cv_url, message) on table public.job_applications to anon, authenticated;
+grant insert (name, company, email, whatsapp, need, budget, message, source, utm_source, utm_medium, utm_campaign, referrer) on table public.contact_messages to anon, authenticated;
+grant insert (job_id, applied_for, name, email, whatsapp, cv_url, message, source, utm_source, utm_medium, utm_campaign, referrer) on table public.job_applications to anon, authenticated;
 
 -- Comptes
 create policy "profils : équipe ou soi-même" on public.profiles for select to authenticated

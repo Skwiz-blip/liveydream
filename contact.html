@@ -107,11 +107,13 @@
             <div><label for="f-need">Votre besoin</label><select id="f-need" name="besoin"></select></div>
             <div><label for="f-bud">Budget estimé</label><select id="f-bud" name="budget"></select></div>
             <div class="full"><label for="f-msg">Décrivez votre projet</label><textarea id="f-msg" name="message"></textarea></div>
+            <div class="full"><label for="f-src">Comment nous avez-vous connus ? *</label><select id="f-src" name="source" required></select></div>
           </div>
           <p class="err" id="err" role="alert"></p>
           <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
           <button class="btn b" id="send" type="submit" data-t="contact.formBtn">Envoyer ma demande</button>
           <p class="ok" id="ok" role="status"></p>
+          <p class="nt">Vos informations servent uniquement à répondre à votre demande : elles ne sont ni vendues ni partagées.</p>
           <p class="nt" data-t="contact.formNote">Vos informations restent strictement confidentielles. Réponse garantie sous 24h.</p>
         </form>
         <p class="opts" id="opts"></p>
@@ -142,6 +144,7 @@ CMS.ready(function () {
     $(sel).innerHTML = '<option value="">' + e(placeholder) + '</option>' + list.map(function (x) { return '<option>' + e(x) + '</option>'; }).join('');
   }
   fill('f-need', 'Choisissez un service', c.needs);
+  fill('f-src', 'Choisissez une réponse', CMS.SOURCES);
   fill('f-bud', 'Fourchette de budget', c.budgets);
 
   /* Pré-remplissage depuis les autres pages (?service=…&plan=…&projet=…) */
@@ -157,11 +160,12 @@ CMS.ready(function () {
     var f = ev.target, v = function (n) { return f.elements[n].value.trim(); };
     var err = $('err'); err.style.display = 'none';
     if (!v('nom') || !v('email') || !v('whatsapp')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre numéro WhatsApp.'; err.style.display = 'block'; return; }
+    if (!v('source')) { err.textContent = 'Merci de nous dire comment vous nous avez connus.'; err.style.display = 'block'; return; }
     if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
 
     var ok = $('ok'), send = $('send');
     if (v('_honey')) { ok.textContent = 'Merci, votre demande est envoyée.'; ok.style.display = 'block'; f.reset(); return; }
-    var data = { id: CMS.uid(), nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: v('besoin'), budget: v('budget'), message: v('message'), date: new Date().toISOString() };
+    var data = { id: CMS.uid(), nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: v('besoin'), budget: v('budget'), message: v('message'), source: v('source'), date: new Date().toISOString() };
 
     var txt = 'Bonjour Live Y Dream, je suis ' + data.nom + (data.entreprise ? ' (' + data.entreprise + ')' : '') + '.\n' +
       (data.besoin ? 'Besoin : ' + data.besoin + '\n' : '') + (data.budget ? 'Budget : ' + data.budget + '\n' : '') +

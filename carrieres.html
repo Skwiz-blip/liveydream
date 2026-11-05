@@ -113,11 +113,13 @@
           <div><label for="f-poste">Poste visé *</label><select id="f-poste" name="poste"></select></div>
           <div class="full"><label for="f-cv">Lien vers votre CV ou portfolio</label><input id="f-cv" name="cv" type="url" placeholder="https://"></div>
           <div class="full"><label for="f-msg">Parlez-nous de vous</label><textarea id="f-msg" name="message"></textarea></div>
+          <div class="full"><label for="f-src">Comment avez-vous connu cette offre ?</label><select id="f-src" name="source"></select></div>
         </div>
         <p class="err" id="err" role="alert"></p>
         <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn b" id="send" type="submit" data-t="jobs.formBtn">Envoyer ma candidature</button>
         <p class="ok" id="ok" role="status"></p>
+        <p class="nt">Vos informations servent uniquement à étudier votre candidature : elles ne sont ni vendues ni partagées.</p>
         <p class="nt" data-t="jobs.formNote">Vos informations restent strictement confidentielles.</p>
       </form>
     </div>
@@ -148,6 +150,7 @@ CMS.ready(function () {
 
   var postes = jobs.map(function (j) { return j.t; }).concat(careers.postes);
   $('f-poste').innerHTML = '<option value="">Choisissez un poste</option>' + postes.map(function (p) { return '<option>' + e(p) + '</option>'; }).join('');
+  $('f-src').innerHTML = '<option value="">Choisissez une réponse</option>' + CMS.SOURCES.map(function (x) { return '<option>' + e(x) + '</option>'; }).join('');
   var want = CMS.qs('poste');
   $('f-poste').value = want && postes.indexOf(want) > -1 ? want : (jobs.length ? '' : SPONT);
 
@@ -183,7 +186,7 @@ CMS.ready(function () {
 
     var ok = $('ok'), send = $('send');
     if (v('_honey')) { ok.textContent = 'Merci, votre candidature est envoyée.'; ok.style.display = 'block'; f.reset(); return; }
-    var d = { id: CMS.uid(), nom: v('nom'), email: v('email'), whatsapp: v('whatsapp'), poste: v('poste'), cv: v('cv'), message: v('message'), date: new Date().toISOString() };
+    var d = { id: CMS.uid(), nom: v('nom'), email: v('email'), whatsapp: v('whatsapp'), poste: v('poste'), cv: v('cv'), message: v('message'), source: v('source'), date: new Date().toISOString() };
 
     var body = 'Bonjour, je souhaite postuler : ' + d.poste + '\nNom : ' + d.nom + '\nEmail : ' + d.email + '\nWhatsApp : ' + d.whatsapp +
       (d.cv ? '\nCV / portfolio : ' + d.cv : '') + (d.message ? '\n\n' + d.message : '');

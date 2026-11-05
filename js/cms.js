@@ -117,7 +117,7 @@
     return p === 'mailto' || p === 'tel' ? s : '';
   }
 
-  /* Nettoyage du HTML saisi dans l'admin ou importé : liste blanche stricte */
+  
   var TAGS = { P: 1, BR: 1, STRONG: 1, B: 1, EM: 1, I: 1, U: 1, S: 1, STRIKE: 1, H2: 1, H3: 1, H4: 1, UL: 1, OL: 1, LI: 1, BLOCKQUOTE: 1, A: 1, IMG: 1, DIV: 1, SPAN: 1, HR: 1, FIGURE: 1, FIGCAPTION: 1 };
   var DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|SVG|MATH|TEMPLATE|NOSCRIPT|LINK|META|BASE|TITLE|HEAD|FORM|INPUT|BUTTON|TEXTAREA|SELECT|OPTION|VIDEO|AUDIO|SOURCE|CANVAS|APPLET|FRAME|FRAMESET)$/;
   var CLASSES = { tip: 1, k: 1 };
@@ -419,6 +419,29 @@
   /* Envoi d'un formulaire : enregistré dans la base (boîte Messages de l'admin), et par email si une adresse est réglée.
      Résultat : { sent: true } si l'agence l'a reçu, { sent: false } sinon. */
   function cut(v, n) { return String(v || '').trim().slice(0, n); }
+  /* Provenance de la visite, gardée le temps de la visite : paramètres utm_ de l'adresse d'arrivée, site d'origine */
+  var VISIT = 'lyd_visit', SOURCE_COLS = ['source', 'utm_source', 'utm_medium', 'utm_campaign', 'referrer'];
+  try {
+    var arrival = new URLSearchParams(location.search);
+    if (!sessionStorage.getItem(VISIT) || arrival.get('utm_source')) {
+      var from = '';
+      try { if (document.referrer) { var ref = new URL(document.referrer); if (ref.host !== location.host) from = ref.host; } } catch (e) {}
+      sessionStorage.setItem(VISIT, JSON.stringify({ utm_source: cut(arrival.get('utm_source'), 200), utm_medium: cut(arrival.get('utm_medium'), 200), utm_campaign: cut(arrival.get('utm_campaign'), 200), referrer: cut(from, 200) }));
+    }
+  } catch (e) {}
+  function visit() { try { return JSON.parse(sessionStorage.getItem(VISIT)) || {}; } catch (e) { return {}; } }
+  /* Réponses à « Comment nous avez-vous connus ? » : fixes, pour que les chiffres restent comparables d'un mois à l'autre */
+  CMS.SOURCES = ['Recherche Google', 'Google Maps', 'Facebook ou Instagram', 'LinkedIn', 'TikTok', 'Recommandation', 'Plaquette ou QR code', 'Événement LYD', 'Presse', 'Autre'];
+  /* Tant que database/migration-sources.sql n'a pas été exécuté, la demande part sans sa source */
+  function insertForm(table, row, data) {
+    var full = {}, v = visit();
+    Object.keys(row).forEach(function (k) { full[k] = row[k]; });
+    SOURCE_COLS.forEach(function (k) { full[k] = cut(k === 'source' ? data.source : v[k], k === 'source' ? 60 : 200); });
+    return DB.insert(table, full, { anon: true }).catch(function (e) {
+      if (e.code !== 'PGRST204' && e.code !== '42501' && !/column/i.test(e.message)) throw e;
+      return DB.insert(table, row, { anon: true });
+    });
+  }
   var FORM_TABLES = {
     messages: { table: 'contact_messages', row: function (d) {
       return { name: cut(d.nom, 120), company: cut(d.entreprise, 200), email: d.email, whatsapp: cut(d.whatsapp, 40), need: cut(d.besoin, 200), budget: cut(d.budget, 100), message: cut(d.message, 5000) };
@@ -436,7 +459,7 @@
       CMS.set(kind, box);
     }
     var t = FORM_TABLES[kind];
-    var stored = t && window.DB ? DB.insert(t.table, t.row(data), { anon: true }).then(function () { return true; }, function (e) {
+    var stored = t && window.DB ? insertForm(t.table, t.row(data), data).then(function () { return true; }, function (e) {
       try { console.error('[LYD] Formulaire non enregistré dans la base : ' + e.message); } catch (x) {}
       return false;
     }) : Promise.resolve(false);
@@ -554,7 +577,7 @@
     document.body.appendChild(b);
     var toggle = function () {
       b.classList.toggle('show', (window.pageYOffset || document.documentElement.scrollTop) > 150);
-      /* s'inverse (blanc) quand il survole une zone noire (.dk) */
+  
       var r = b.getBoundingClientRect(), cy = r.top + r.height / 2, cx = r.left + r.width / 2, dark = false;
       document.querySelectorAll('.dk').forEach(function (el) {
         var q = el.getBoundingClientRect();
