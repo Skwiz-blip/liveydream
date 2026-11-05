@@ -299,7 +299,7 @@ CMS.ready(function () {
 
   function renderArticle(id) {
     /* ?preview=1 : aperçu d'un brouillon depuis l'admin, dans le navigateur de l'auteur */
-    var a = (CMS.qs('preview') ? allRaw : all).filter(function (x) { return x.id === id; })[0];
+    var a = (CMS.isPreview() ? allRaw : all).filter(function (x) { return x.id === id; })[0];
     var view = $('article-view');
     $('blog-content').style.display = 'none';
     view.style.display = 'block';

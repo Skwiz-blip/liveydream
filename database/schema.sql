@@ -657,7 +657,8 @@ create policy "offres : gestion" on public.jobs for all to authenticated
 
 create policy "blocs : publics visibles" on public.site_content for select to anon, authenticated using (is_public);
 create policy "blocs : gestion" on public.site_content for all to authenticated
-  using ((select public.is_manager())) with check ((select public.is_manager()));
+  using ((select public.is_manager()) or ((select public.is_staff()) and key in ('articles', 'campaigns', 'media')))
+  with check ((select public.is_manager()) or ((select public.is_staff()) and key in ('articles', 'campaigns', 'media')));
 
 -- Demandes : tout le monde peut envoyer, seuls Super Admin et Admin peuvent lire
 create policy "messages : envoi" on public.contact_messages for insert to anon, authenticated with check (true);

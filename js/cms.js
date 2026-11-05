@@ -90,7 +90,6 @@
 
   /* Clés de contenu publiques (jamais les messages ni les candidatures) */
   var CONTENT_KEYS = ['settings', 'contact', 'problems', 'services', 'plan', 'plans', 'process', 'campaigns', 'jobs', 'careers', 'blogTexts', 'forms', 'texts', 'seo', 'clients', 'testimonials', 'articles', 'about', 'discussion'];
-  var FILTERED_KEYS = { articles: 1, campaigns: 1, jobs: 1 };
   /* Données de visiteurs : gardées lors d'un retour à la version en ligne, jamais publiées telles quelles */
   var PRIVATE_KEYS = ['messages', 'applications', 'comments'];
   var mediaCache = null;
@@ -306,7 +305,6 @@
     var out = {}, media = {};
     CONTENT_KEYS.forEach(function (k) {
       var v = CMS.get(k);
-      if (FILTERED_KEYS[k]) v = CMS.published(v);
       if (JSON.stringify(v) !== JSON.stringify(DEFAULTS[k])) out[k] = v;
     });
     (JSON.stringify(out).match(/media:[a-z0-9]+/gi) || []).forEach(function (ref) {
@@ -382,6 +380,15 @@
   /* Chargement du contenu publié ; en cas de coupure, la dernière copie reçue */
   function setPublished(data) { PUB = data || {}; mediaCache = null; }
   CMS.setPublished = setPublished;
+  CMS.publishedData = function () { return clone(PUB); };
+  /* Après un envoi réussi, la copie locale est retirée : la page relit la version en ligne */
+  CMS.clearDraft = function (key) {
+    var saved = load();
+    if (saved[key] === undefined) return;
+    delete saved[key];
+    try { store().setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+  };
+  CMS.hasDraft = function (key) { return load()[key] !== undefined; };
   CMS.loadPublished = function () {
     if (!window.DB) return Promise.reject(new Error('Base de données indisponible.'));
     return DB.select('site_content', 'select=key,value&is_public=eq.true', { anon: true }).then(function (rows) {

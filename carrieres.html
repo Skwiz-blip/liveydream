@@ -157,7 +157,7 @@ CMS.ready(function () {
   /* Page d'une offre : ?offre=… (les brouillons seulement dans un aperçu ouvert depuis l'admin) */
   var offerId = CMS.qs('offre');
   if (offerId) {
-    var pool = CMS.qs('preview') ? CMS.get('jobs') : jobs;
+    var pool = CMS.isPreview() ? CMS.get('jobs') : jobs;
     var j = pool.filter(function (x) { return idOf(x) === offerId; })[0], box = $('job-detail');
     function list(title, items) {
       return items && items.length ? '<h3>' + e(title) + '</h3><ul>' + items.map(function (x) { return '<li>' + e(x) + '</li>'; }).join('') + '</ul>' : '';
