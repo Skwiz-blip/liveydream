@@ -54,7 +54,7 @@
   }
   /* La page est jugée construite quand CHECK existe et se voit ; sinon on le signale, même sans erreur */
   function check(late) {
-    if (done) return;
+    if (done || (!late && window.LYD_WAIT)) return;
     var el = document.querySelector(CHECK), hidden = !!el && !el.getClientRects().length;
     if (late && el && !hidden && !errors.length) return;
     done = true;
@@ -62,6 +62,7 @@
     else if (hidden) log('La page est construite mais cachée (« ' + CHECK + " » masqué). Un bloqueur de publicités en est sans doute la cause : désactivez-le pour ce site.");
     show();
   }
+  window.LYD_CHECK = function () { check(false); };
   window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
   setTimeout(function () { check(true); }, 20000);
 })();
@@ -130,18 +131,17 @@
 </main>
 
 <div data-lyd="footer"></div>
-<script src="js/content.js"></script>
 <script src="js/config.js"></script>
 <script src="js/db.js"></script>
 <script src="js/cms.js"></script>
 <script>
-(function () {
+CMS.ready(function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
   var s = CMS.get('settings'), sv = CMS.get('services');
   CMS.mount('services.html');
   $('wa').href = s.whatsapp;
 
-  $('philo-st').innerHTML = [s.stats[1], s.stats[0], s.stats[2]].map(function (x) {
+  $('philo-st').innerHTML = [s.stats[1], s.stats[0], s.stats[2]].filter(Boolean).map(function (x) {
     return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
   }).join('');
 
@@ -177,7 +177,7 @@
   $('steps').innerHTML = CMS.get('process').map(function (p, i) {
     return '<div class="st"><div class="no">0' + (i + 1) + '</div><h4>' + e(p.t) + '</h4><p>' + e(p.d) + '</p></div>';
   }).join('');
-})();
+});
 </script>
 </body>
 </html>

@@ -54,7 +54,7 @@
   }
   /* La page est jugée construite quand CHECK existe et se voit ; sinon on le signale, même sans erreur */
   function check(late) {
-    if (done) return;
+    if (done || (!late && window.LYD_WAIT)) return;
     var el = document.querySelector(CHECK), hidden = !!el && !el.getClientRects().length;
     if (late && el && !hidden && !errors.length) return;
     done = true;
@@ -62,6 +62,7 @@
     else if (hidden) log('La page est construite mais cachée (« ' + CHECK + " » masqué). Un bloqueur de publicités en est sans doute la cause : désactivez-le pour ce site.");
     show();
   }
+  window.LYD_CHECK = function () { check(false); };
   window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
   setTimeout(function () { check(true); }, 20000);
 })();
@@ -106,12 +107,11 @@
 </main>
 
 <div data-lyd="footer"></div>
-<script src="js/content.js"></script>
 <script src="js/config.js"></script>
 <script src="js/db.js"></script>
 <script src="js/cms.js"></script>
 <script>
-(function () {
+CMS.ready(function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
   var camps = CMS.published(CMS.get('campaigns'));
   var slug = function (c) { return c.client.toLowerCase().replace(/\s+/g, '-'); };
@@ -147,7 +147,7 @@
 
   render();
   if (location.hash) { var t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView(); }
-})();
+});
 </script>
 </body>
 </html>
