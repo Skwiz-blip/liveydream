@@ -18,3 +18,6 @@ grant insert (source, utm_source, utm_medium, utm_campaign, referrer) on table p
 grant insert (source, utm_source, utm_medium, utm_campaign, referrer) on table public.job_applications to anon, authenticated;
 
 commit;
+
+
+select * from public.contact_messages

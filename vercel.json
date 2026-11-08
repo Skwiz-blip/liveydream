@@ -18,6 +18,15 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/(sw|sw-version)\\.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     }
   ]
 }

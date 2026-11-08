@@ -166,7 +166,7 @@ CMS.ready(function () {
 
   $('hero-title').textContent = s.hero.title;
   $('hero-text').textContent = s.hero.text;
-  if (CMS.src(s.hero.image)) $('hero-card').innerHTML = '<img src="' + e(CMS.src(s.hero.image)) + '" alt="Équipe Live Y Dream">';
+  if (CMS.src(s.hero.image)) $('hero-card').innerHTML = '<img src="' + e(CMS.src(s.hero.image)) + '" alt="Équipe Live Y Dream" fetchpriority="high">';
 
   $('stats').innerHTML = s.stats.map(function (x) {
     return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
@@ -187,14 +187,14 @@ CMS.ready(function () {
     '<a class="btn" href="services.html#tarifs">' + e(pl.cta) + '</a></div><div class="price">' + e(pl.price) + '</div>';
 
   $('camps').innerHTML = CMS.published(CMS.get('campaigns')).slice(0, 4).map(function (c) {
-    return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.t) + '">' : e(c.client)) + '</div>' +
+    return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.t) + '" loading="lazy" decoding="async">' : e(c.client)) + '</div>' +
       '<p class="cat">' + e(c.cat) + '</p><h4>' + e(c.t) + '</h4></a>';
   }).join('');
 
   /* Défilement continu : la liste est doublée pour une boucle sans coupure */
   var logoItems = CMS.get('clients').map(function (l) {
     var c = typeof l === 'string' ? { name: '', img: l } : l;
-    return '<div class="lg">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.name) + '">' : '<span>' + e(c.name) + '</span>') + '</div>';
+    return '<div class="lg">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.name) + '" loading="lazy" decoding="async">' : '<span>' + e(c.name) + '</span>') + '</div>';
   }).join('');
   $('logos').innerHTML = logoItems + logoItems.replace(/class="lg"/g, 'class="lg" aria-hidden="true"');
 

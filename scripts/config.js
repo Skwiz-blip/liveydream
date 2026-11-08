@@ -30,4 +30,7 @@ if (!/^sb_publishable_/.test(key) && role !== 'anon') stop('clé inattendue : me
 const out = '/* Fichier généré par scripts/config.js : ne pas modifier, ne pas enregistrer dans Git. */\n' +
   'window.LYD_SUPABASE = ' + JSON.stringify({ url: url, key: key }) + ';\n';
 fs.writeFileSync(path.join(root, 'js', 'config.js'), out);
+// Numéro de mise en ligne : un nouveau numéro renouvelle le cache hors ligne des visiteurs (sw.js)
+const build = (process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString(36)).slice(0, 12);
+fs.writeFileSync(path.join(root, 'sw-version.js'), '/* Généré par scripts/config.js */\nself.LYD_BUILD = ' + JSON.stringify(build) + ';\n');
 console.log('js/config.js écrit pour ' + url);

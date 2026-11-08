@@ -1,7 +1,6 @@
 # Dépôt séparé : github.com/Skwiz-blip/liveydream-admin
 admin/
-
-# Clés et configuration : jamais dans Git
+ 
 .env
 js/config.js
-seed.sql
+sw-version.js

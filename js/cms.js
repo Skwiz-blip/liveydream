@@ -261,7 +261,7 @@
 
     ph: function (src, label, alt) {
       var u = CMS.src(src);
-      return u ? '<img src="' + esc(u) + '" alt="' + esc(alt || label || '') + '">' : '<span class="ph-l">' + esc(label || '') + '</span>';
+      return u ? '<img src="' + esc(u) + '" alt="' + esc(alt || label || '') + '" loading="lazy" decoding="async">' : '<span class="ph-l">' + esc(label || '') + '</span>';
     },
     contactUrl: function (need, extra) {
       return 'contact.html?service=' + encodeURIComponent(need || '') + (extra || '');
@@ -289,7 +289,7 @@
     var body = sanitizedBody(src), toc = [], seen = {};
     body.querySelectorAll('img').forEach(function (im) {
       var u = CMS.src(im.getAttribute('src'));
-      if (u) im.setAttribute('src', u); else im.parentNode.removeChild(im);
+      if (u) { im.setAttribute('src', u); im.setAttribute('loading', 'lazy'); im.setAttribute('decoding', 'async'); } else im.parentNode.removeChild(im);
     });
     body.querySelectorAll('h2,h3').forEach(function (h) {
       var id = slugify(h.textContent) || 'section', n = seen[id] = (seen[id] || 0) + 1;
@@ -400,17 +400,60 @@
     });
   };
   CMS.ready = function (fn) { if (isReady) fn(); else readyFns.push(fn); };
-  window.LYD_WAIT = true;
-  CMS.loadPublished().catch(function (e) {
-    try { console.error('[LYD] Contenu du site non chargé : ' + e.message); } catch (x) {}
-    try { var copy = JSON.parse(localStorage.getItem(PUB_CACHE)); if (copy) setPublished(copy); } catch (x) {}
-    CMS.offline = true;
-  }).then(function () {
+  function start() {
+    if (isReady) return;
     isReady = true;
     window.LYD_WAIT = false;
     readyFns.splice(0).forEach(function (fn) { fn(); });
     if (window.LYD_CHECK) setTimeout(window.LYD_CHECK, 400);
-  });
+    if (document.readyState === 'complete') warmUp(); else window.addEventListener('load', warmUp);
+  }
+  /* La dernière version gardée s'affiche tout de suite ; la base est lue en arrière-plan.
+     Si le contenu a changé, la page se recharge une fois, sauf si le visiteur remplit un formulaire. L'admin lit toujours la base. */
+  var copy = null;
+  try { copy = window.LYD_NO_CACHE ? null : JSON.parse(localStorage.getItem(PUB_CACHE)); } catch (e) {}
+  window.LYD_WAIT = !copy;
+  if (copy) { setPublished(copy); CMS.fromCache = true; start(); }
+  CMS.loadPublished().then(function (fresh) {
+    if (copy && JSON.stringify(fresh) !== JSON.stringify(copy)) refreshPage(JSON.stringify(fresh).length);
+  }, function (e) {
+    try { console.error('[LYD] Contenu du site non chargé : ' + e.message); } catch (x) {}
+    CMS.offline = true;
+  }).then(start);
+  function refreshPage(stamp) {
+    var typing = [].some.call(document.querySelectorAll('input, textarea'), function (f) { return f.type !== 'hidden' && f.name !== '_honey' && f.value !== f.defaultValue; });
+    var active = document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (typing || active) return;
+    try {
+      if (sessionStorage.getItem('lyd_refreshed') === String(stamp)) return;
+      sessionStorage.setItem('lyd_refreshed', String(stamp));
+    } catch (e) { return; }
+    location.reload();
+  }
+  /* Quand le navigateur est libre : les autres pages et les images du contenu, pour les visites suivantes */
+  function warmUp() {
+    var c = navigator.connection;
+    if (window.LYD_NO_CACHE || (c && (c.saveData || /2g/.test(c.effectiveType || '')))) return;
+    var urls = {}, list;
+    JSON.stringify(PUB).replace(/"(?:img|image|heroImg)":"([^"]+)"/g, function (m, v) {
+      var u = CMS.src(v);
+      if (u && /^(https?:|\/|[a-z0-9_-]+\/)/i.test(u)) urls[u] = 1;
+      return m;
+    });
+    ['index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html'].forEach(function (p) { urls[p] = 1; });
+    list = Object.keys(urls);
+    var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 200); };
+    (function next() {
+      if (!list.length) return;
+      idle(function () {
+        var u = list.shift(), other = /^https?:/i.test(u) && u.indexOf(location.origin) !== 0;
+        fetch(u, other ? { mode: 'no-cors', credentials: 'omit' } : { credentials: 'same-origin' }).catch(function () {}).then(next);
+      });
+    })();
+  }
+  if ('serviceWorker' in navigator && !window.LYD_NO_CACHE && !/\/admin\//.test(location.pathname) && window.isSecureContext) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); });
+  }
 
   CMS.isPublished = function () {
     return JSON.stringify(CMS.publishData()) === JSON.stringify(PUB);
