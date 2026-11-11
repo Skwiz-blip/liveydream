@@ -139,7 +139,8 @@ CMS.ready(function () {
   }
 
   function footerRow(a) {
-    return '<div class="au"><span><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><a href="' + articleUrl(a) + '">Lire l\'article →</a></div>';
+    /* Le nom de la personne qui a publié n'est pas affiché : les articles sont signés par l'agence */
+    return '<div class="au"><span>Live Y Dream</span><a href="' + articleUrl(a) + '">Lire l\'article →</a></div>';
   }
 
   function cats() {
@@ -332,7 +333,7 @@ CMS.ready(function () {
         '<p class="crumb"><a href="index.html">Accueil</a> / <a href="blog.html">Blog</a> / ' + e(a.cat) + '</p>' +
         '<span class="pill">' + e(a.cat).toUpperCase() + '</span>' +
         '<h1>' + e(a.t) + '</h1>' +
-        '<div class="ameta"><span class="who"><i class="av">' + e(initials(a.author)) + '</i>' + e(a.author) + '</span><span>' + e(a.date) + '</span><span>' + e(a.min) + ' min de lecture</span></div>' +
+        '<div class="ameta"><span>' + e(a.date) + '</span><span>' + e(a.min) + ' min de lecture</span></div>' +
       '</div></section>' +
 
       '<div class="w"><div class="acover ph-box">' + CMS.ph(a.img, a.cat, a.t) + '</div>' +
@@ -350,7 +351,7 @@ CMS.ready(function () {
       '</aside></div>' +
 
       '<div class="atags">' + a.tags.map(function (t) { return '<a href="blog.html?tag=' + enc(t) + '">' + e(t) + '</a>'; }).join('') + '</div>' +
-      '<div class="abox"><i class="av">' + e(initials(a.author)) + '</i><div><b>' + e(a.author) + '</b><p>' + e(T.bio) + '</p></div></div>' + commentsHtml(a) + '</div>' +
+      '<div class="abox"><i class="av">LYD</i><div><b>Live Y Dream</b><p>' + e(T.bio) + '</p></div></div>' + commentsHtml(a) + '</div>' +
 
       '<section class="gy rel"><div class="w"><p class="k">À lire aussi</p>' +
         '<div class="rel-h"><h2 class="h2">Continuez votre lecture</h2><a class="btn ob" href="blog.html">Tous les articles</a></div>' +

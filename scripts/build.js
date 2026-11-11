@@ -228,7 +228,7 @@ function plan(data) {
         '@context': 'https://schema.org', '@type': 'BlogPosting', headline: String(a.t).slice(0, 110),
         description: a.seoD || a.ex || undefined, image: img || undefined, inLanguage: 'fr',
         datePublished: a.dateISO || undefined, dateModified: a.updatedAt ? new Date(a.updatedAt).toISOString() : (a.dateISO || undefined),
-        author: { '@type': 'Organization', name: a.author || NAME }, publisher: org(),
+        author: org(), publisher: org(),
         mainEntityOfPage: url, keywords: (a.tags || []).join(', ') || undefined
       }, crumbs([['Accueil', home], ['Blog', SITE + '/blog.html'], [a.t, url]])]
     });
