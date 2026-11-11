@@ -6,7 +6,7 @@
     "build": "node scripts/config.js && node scripts/build.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "24.x"
   },
   "dependencies": {
     "jsdom": "^26.1.0"

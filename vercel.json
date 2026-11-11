@@ -591,16 +591,6 @@
       ]
     },
     {
-      "source": "/(.*)",
-      "missing": [
-        {
-          "type": "host",
-          "value": "liveydream.com"
-        }
-      ],
-      "headers": []
-    },
-    {
       "source": "/(sw|sw-version)\\.js",
       "headers": [
         {
