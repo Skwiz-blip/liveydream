@@ -249,9 +249,29 @@
       var u = safeUrl(v, true);
       if (!u) return '';
       var m = /^media:(.+)$/.exec(u);
-      if (m) { var it = CMS.mediaItem(m[1]); return it ? it.src : ''; }
+      if (m) {
+        var it = CMS.mediaItem(m[1]);
+        if (!it) return '';
+        /* Image enregistrée en fichier lors de la mise en ligne (scripts/build.js), si elle n'a pas changé depuis */
+        var file = (window.LYD_MEDIA || {})[m[1]];
+        return file && file.n === String(it.src).length ? CMS.root + file.f : it.src;
+      }
       if (/^(data:|https?:|\/)/i.test(u)) return u;
       return CMS.root + u;
+    },
+    /* Adresse d'un article ou d'une offre : page à part sur le site en ligne, ?id= en local et dans les aperçus */
+    articleUrl: function (a) {
+      var slug = slugOf(a.id);
+      return CMS.built && !CMS.isPreview() ? 'blog/' + slug + '/' : 'blog.html?id=' + encodeURIComponent(a.id);
+    },
+    offerSlug: function (j) { return slugify(j.t || j.id || ''); },
+    offerUrl: function (j) {
+      return CMS.built && !CMS.isPreview() ? 'carrieres/' + CMS.offerSlug(j) + '/' : 'carrieres.html?offre=' + encodeURIComponent(j.id || slugify(j.t)) + (CMS.isPreview() ? '&preview=1' : '') + '#offres';
+    },
+    /* Dernier morceau de l'adresse : /blog/<slug>/ → slug */
+    pathId: function (folder) {
+      var m = new RegExp('/' + folder + '/([^/?#]+)/?$').exec(location.pathname);
+      return m ? decodeURIComponent(m[1]) : '';
     },
     href: function (u) { return safeUrl(u) || '#'; },
     sanitize: function (html) { return sanitizedBody(html).innerHTML; },
@@ -267,6 +287,19 @@
       return 'contact.html?service=' + encodeURIComponent(need || '') + (extra || '');
     }
   };
+
+  /* Page fabriquée par scripts/build.js : les adresses partent de la racine du site (<base href="/">) */
+  CMS.built = !!document.querySelector('base[data-lyd-built]');
+  /* Avec <base href="/">, un lien « #section » mènerait à l'accueil : il reste sur la page */
+  if (CMS.built) document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href^="#"]');
+    if (!a || ev.defaultPrevented || ev.button || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    ev.preventDefault();
+    history.pushState(null, '', location.pathname + location.search + (id ? '#' + encodeURIComponent(id) : ''));
+    var t = id && document.getElementById(id);
+    if (t) t.scrollIntoView({ behavior: 'smooth' }); else if (!id) window.scrollTo(0, 0);
+  });
 
   /* Corps d'un article : HTML de l'éditeur, ou blocs historiques convertis */
   CMS.blocksToHtml = function (blocks) {
@@ -553,7 +586,7 @@
     var links = NAV.map(function (n) {
       return '<a href="' + n[0] + '"' + (n[0] === active ? ' class="on"' : '') + '>' + n[1] + '</a>';
     }).join('');
-    return '<header class="hd dk"><div class="w">' +
+    return '<header class="hd dk" data-lyd="header"><div class="w">' +
       '<a class="logo" href="index.html">' + esc(s.brand) + '</a>' +
       '<nav id="nav">' + links + '</nav>' +
       '<a class="btn cta" href="contact.html">Devis gratuit</a>' +
@@ -565,7 +598,7 @@
     var s = CMS.get('settings'), sv = CMS.get('services');
     var svc = sv.map(function (x, i) { return '<li><a href="services.html#s' + (i + 1) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
       '<li><a href="services.html#tarifs">Abonnement PME</a></li>';
-    return '<footer class="ft dk"><div class="w">' +
+    return '<footer class="ft dk" data-lyd="footer"><div class="w">' +
       '<div class="ft-g">' +
       '<div><a class="logo" href="index.html">' + esc(s.brand) + '</a><p>' + esc(s.baseline) + '</p></div>' +
       '<div><h5>Services</h5><ul>' + svc + '</ul></div>' +
@@ -584,7 +617,7 @@
       [st[1].n, st[1].b || 'Marques accompagnées'], [st[0].n, st[0].b || "Années d'expérience"],
       [st[2].n, st[2].b || 'Pays couverts'], [plus(st[3].n), st[3].b || "Experts dans l'équipe"]
     ];
-    return '<section class="band dk"><div class="w band-g">' + items.map(function (x) {
+    return '<section class="band dk" data-lyd="stats"><div class="w band-g">' + items.map(function (x) {
       return '<div><div class="n">' + esc(x[0]) + '</div><div class="l">' + esc(x[1]) + '</div></div>';
     }).join('') + '</div></section>';
   };
@@ -594,7 +627,7 @@
       var t = el.getAttribute('data-lyd');
       if (t === 'header') el.outerHTML = CMS.header(active);
       else if (t === 'footer') el.outerHTML = CMS.footer();
-      else if (t === 'stats') el.outerHTML = CMS.statsBand();
+      else if (t === 'stats') el.outerHTML = CMS.statsBand() || '<div data-lyd="stats" hidden></div>';
     });
     CMS.applyTexts(active);
     CMS.topBtn();

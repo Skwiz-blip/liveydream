@@ -1,6 +1,566 @@
 {
-  "buildCommand": "node scripts/config.js",
-  "outputDirectory": ".",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/blog",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/blog/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/portfolio",
+      "destination": "/campagnes.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/portfolio/",
+      "destination": "/campagnes.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/services",
+      "destination": "/services.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/services/",
+      "destination": "/services.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/apropos",
+      "destination": "/a-propos.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/apropos/",
+      "destination": "/a-propos.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/emploi",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/emploi/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/contact/",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/mentions-legales",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/mentions-legales/",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/politique-de-confidentialite",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/politique-de-confidentialite/",
+      "destination": "/contact.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/category/blog",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/category/blog/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/category/emploi",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/category/emploi/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/tag/:tag",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/tag/:tag/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/author/:name",
+      "destination": "/a-propos.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/author/:name/",
+      "destination": "/a-propos.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/feed",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/feed/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/home/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/quels-sont-les-defis-a-relever-en-marketing-digital",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/quels-sont-les-defis-a-relever-en-marketing-digital/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-un-redacteur-web",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-un-redacteur-web/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recherche-pour-le-renforcement-de-son-equipe-un-ou-une-photographe-et-ou-videaste",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recherche-pour-le-renforcement-de-son-equipe-un-ou-une-photographe-et-ou-videaste/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-des-graphistes",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-des-graphistes/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-un-community-manager",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/lagence-live-y-dream-recrute-pour-le-renforcement-de-son-equipe-un-community-manager/",
+      "destination": "/carrieres.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/quelles-sont-les-polices-decriture-a-utiliser-pour-creer-des-logos-et-quelles-sont-leurs-significations",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/quelles-sont-les-polices-decriture-a-utiliser-pour-creer-des-logos-et-quelles-sont-leurs-significations/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/comprendre-la-difference-entre-la-charte-et-la-chaine-graphique",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/comprendre-la-difference-entre-la-charte-et-la-chaine-graphique/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/9-ans-a-vos-cotes-live-y-dream-a-votre-service",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/9-ans-a-vos-cotes-live-y-dream-a-votre-service/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/5-choses-a-savoir-pour-faire-de-la-publicite",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/5-choses-a-savoir-pour-faire-de-la-publicite/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/le-top-6-des-metiers-en-vogue-de-la-communication-en-2021",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/le-top-6-des-metiers-en-vogue-de-la-communication-en-2021/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-est-il-important-de-determiner-votre-public-cible",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-est-il-important-de-determiner-votre-public-cible/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/quelle-agence-de-communication-pour-vos-services",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/quelle-agence-de-communication-pour-vos-services/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-bases-pour-reussir-sa-conception-graphique",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-bases-pour-reussir-sa-conception-graphique/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-reussir-avec-brio-une-communication-evenementielle",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-reussir-avec-brio-une-communication-evenementielle/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-mic-flammez",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-mic-flammez/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/notre-engagement-de-confidentialite-envers-vous",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/notre-engagement-de-confidentialite-envers-vous/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-gyl-phenix",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-gyl-phenix/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-fofo-skarfo",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-fofo-skarfo/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-black-t",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-black-t/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-kanaa",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/togo-music-football-club-kanaa/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/liveydream-the-communication-agency-you-need-in-west-africa",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/liveydream-the-communication-agency-you-need-in-west-africa/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/top-5-best-campaigns-of-the-agency",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/top-5-best-campaigns-of-the-agency/",
+      "destination": "/blog.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/black-friday-boostez-vos-ventes-avec-ces-astuces-incontournables",
+      "destination": "/blog/black-friday-boostez-vos-ventes-avec-ces-astuces-incontournables/",
+      "statusCode": 301
+    },
+    {
+      "source": "/black-friday-boostez-vos-ventes-avec-ces-astuces-incontournables/",
+      "destination": "/blog/black-friday-boostez-vos-ventes-avec-ces-astuces-incontournables/",
+      "statusCode": 301
+    },
+    {
+      "source": "/un-outil-de-communication-anodin-mais-puissant",
+      "destination": "/blog/un-outil-de-communication-anodin-mais-puissant/",
+      "statusCode": 301
+    },
+    {
+      "source": "/un-outil-de-communication-anodin-mais-puissant/",
+      "destination": "/blog/un-outil-de-communication-anodin-mais-puissant/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-commandements-pour-une-communication-reussie-en-2024",
+      "destination": "/blog/les-7-commandements-pour-une-communication-reussie-en-2024/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-commandements-pour-une-communication-reussie-en-2024/",
+      "destination": "/blog/les-7-commandements-pour-une-communication-reussie-en-2024/",
+      "statusCode": 301
+    },
+    {
+      "source": "/liveydream-bilan-2023-et-cap-sur-2024",
+      "destination": "/blog/liveydream-bilan-2023-et-cap-sur-2024/",
+      "statusCode": 301
+    },
+    {
+      "source": "/liveydream-bilan-2023-et-cap-sur-2024/",
+      "destination": "/blog/liveydream-bilan-2023-et-cap-sur-2024/",
+      "statusCode": 301
+    },
+    {
+      "source": "/communication-en-temps-de-crise",
+      "destination": "/blog/communication-en-temps-de-crise/",
+      "statusCode": 301
+    },
+    {
+      "source": "/communication-en-temps-de-crise/",
+      "destination": "/blog/communication-en-temps-de-crise/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-attirer-des-clients-sans-publicite",
+      "destination": "/blog/comment-attirer-des-clients-sans-publicite/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-attirer-des-clients-sans-publicite/",
+      "destination": "/blog/comment-attirer-des-clients-sans-publicite/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-80-des-entreprises-echouent-sur-les-reseaux-sociaux-et-comment-eviter-ca",
+      "destination": "/blog/pourquoi-80-des-entreprises-echouent-sur-les-reseaux-sociaux-et-comment-eviter-ca/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-80-des-entreprises-echouent-sur-les-reseaux-sociaux-et-comment-eviter-ca/",
+      "destination": "/blog/pourquoi-80-des-entreprises-echouent-sur-les-reseaux-sociaux-et-comment-eviter-ca/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-qui-sabotent-votre-communication-et-comment-les-corriger-rapidement",
+      "destination": "/blog/les-7-erreurs-qui-sabotent-votre-communication-et-comment-les-corriger-rapidement/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-qui-sabotent-votre-communication-et-comment-les-corriger-rapidement/",
+      "destination": "/blog/les-7-erreurs-qui-sabotent-votre-communication-et-comment-les-corriger-rapidement/",
+      "statusCode": 301
+    },
+    {
+      "source": "/creer-une-marque-forte-les-etapes-que-personne-ne-vous-explique-vraiment",
+      "destination": "/blog/creer-une-marque-forte-les-etapes-que-personne-ne-vous-explique-vraiment/",
+      "statusCode": 301
+    },
+    {
+      "source": "/creer-une-marque-forte-les-etapes-que-personne-ne-vous-explique-vraiment/",
+      "destination": "/blog/creer-une-marque-forte-les-etapes-que-personne-ne-vous-explique-vraiment/",
+      "statusCode": 301
+    },
+    {
+      "source": "/le-secret-des-contenus-viraux-ce-que-les-grandes-marques-font-differemment",
+      "destination": "/blog/contenus-viraux/",
+      "statusCode": 301
+    },
+    {
+      "source": "/le-secret-des-contenus-viraux-ce-que-les-grandes-marques-font-differemment/",
+      "destination": "/blog/contenus-viraux/",
+      "statusCode": 301
+    },
+    {
+      "source": "/votre-entreprise-est-invisible-en-ligne-voici-comment-changer-ca-en-30-jours",
+      "destination": "/blog/entreprise-invisible-30-jours/",
+      "statusCode": 301
+    },
+    {
+      "source": "/votre-entreprise-est-invisible-en-ligne-voici-comment-changer-ca-en-30-jours/",
+      "destination": "/blog/entreprise-invisible-30-jours/",
+      "statusCode": 301
+    },
+    {
+      "source": "/marketing-digital-en-afrique-opportunite-enorme-ou-illusion",
+      "destination": "/blog/marketing-digital-afrique/",
+      "statusCode": 301
+    },
+    {
+      "source": "/marketing-digital-en-afrique-opportunite-enorme-ou-illusion/",
+      "destination": "/blog/marketing-digital-afrique/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-transformer-vos-abonnes-en-clients-fideles-sans-etre-agressif",
+      "destination": "/blog/abonnes-clients-fideles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-transformer-vos-abonnes-en-clients-fideles-sans-etre-agressif/",
+      "destination": "/blog/abonnes-clients-fideles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-de-communication-que-font-les-entreprises-togolaises",
+      "destination": "/blog/erreurs-communication-togo/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-de-communication-que-font-les-entreprises-togolaises/",
+      "destination": "/blog/erreurs-communication-togo/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-votre-pme-au-togo-a-besoin-dun-community-manager-professionnel",
+      "destination": "/blog/pme-cm-pro/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-votre-pme-au-togo-a-besoin-dun-community-manager-professionnel/",
+      "destination": "/blog/pme-cm-pro/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-les-pme-au-togo-ont-besoin-dun-community-manager-professionnel",
+      "destination": "/blog/pme-community-manager/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pourquoi-les-pme-au-togo-ont-besoin-dun-community-manager-professionnel/",
+      "destination": "/blog/pme-community-manager/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-choisir-lagence-de-communication-ideale-a-lome",
+      "destination": "/blog/guide-agence-lome-2026/",
+      "statusCode": 301
+    },
+    {
+      "source": "/comment-choisir-lagence-de-communication-ideale-a-lome/",
+      "destination": "/blog/guide-agence-lome-2026/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-de-communication-que-font-les-entreprises-togolaises-2",
+      "destination": "/blog/erreurs-communication-togo/",
+      "statusCode": 301
+    },
+    {
+      "source": "/les-7-erreurs-de-communication-que-font-les-entreprises-togolaises-2/",
+      "destination": "/blog/erreurs-communication-togo/",
+      "statusCode": 301
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog/:slug/",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/carrieres/:slug",
+      "destination": "/carrieres.html"
+    },
+    {
+      "source": "/carrieres/:slug/",
+      "destination": "/carrieres.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -12,7 +572,18 @@
         {
           "key": "Vary",
           "value": "Origin"
-        },
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "missing": [
+        {
+          "type": "host",
+          "value": "liveydream.com"
+        }
+      ],
+      "headers": [
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
@@ -20,11 +591,30 @@
       ]
     },
     {
+      "source": "/(.*)",
+      "missing": [
+        {
+          "type": "host",
+          "value": "liveydream.com"
+        }
+      ],
+      "headers": []
+    },
+    {
       "source": "/(sw|sw-version)\\.js",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }

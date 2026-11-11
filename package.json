@@ -1,0 +1,14 @@
+{
+  "name": "liveydream",
+  "private": true,
+  "description": "Site public Live Y Dream",
+  "scripts": {
+    "build": "node scripts/config.js && node scripts/build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

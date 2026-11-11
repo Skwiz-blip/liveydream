@@ -1,0 +1,18 @@
+# Remet le site en ligne chaque nuit : les pages lues par Google reprennent le contenu publié depuis l'admin.
+# Réglage (une seule fois) : Vercel > Settings > Git > Deploy Hooks > créer un lien (branche main),
+# puis GitHub > Settings > Secrets and variables > Actions > New secret : VERCEL_DEPLOY_HOOK = ce lien.
+name: Reconstruction du site
+on:
+  schedule:
+    - cron: '0 2 * * *' # 2 h du matin à Lomé (UTC)
+  workflow_dispatch: {}  # bouton « Run workflow » pour lancer à la main
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Demander une mise en ligne à Vercel
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "Secret VERCEL_DEPLOY_HOOK absent : voir l'en-tête de ce fichier."; exit 1; fi
+          curl -fsS -X POST "$HOOK"

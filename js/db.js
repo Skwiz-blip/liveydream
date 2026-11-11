@@ -73,8 +73,14 @@
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (tok) headers.Authorization = 'Bearer ' + tok;
       if (o.prefer) headers.Prefer = o.prefer;
-      return fetch(BASE + path, { method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body) }).catch(function () {
-        var err = new Error('Connexion à la base impossible : vérifiez la connexion internet, puis réessayez.');
+      var stop = window.AbortController ? new AbortController() : null, late = false;
+      var timer = stop && setTimeout(function () { late = true; stop.abort(); }, 12000);
+      return fetch(BASE + path, { method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body), signal: stop ? stop.signal : undefined }).then(function (r) {
+        clearTimeout(timer);
+        return r;
+      }, function () {
+        clearTimeout(timer);
+        var err = new Error(late ? 'La base ne répond pas (plus de 12 secondes) : vérifiez la connexion internet, puis réessayez.' : 'Connexion à la base impossible : vérifiez la connexion internet, puis réessayez.');
         err.status = 0;
         err.code = 'network';
         throw err;

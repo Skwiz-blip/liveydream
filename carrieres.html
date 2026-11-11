@@ -136,7 +136,7 @@ CMS.ready(function () {
   var s = CMS.get('settings'), jobs = CMS.published(CMS.get('jobs')), careers = CMS.get('careers');
   var idOf = function (j) { return j.id || CMS.slugify(j.t); };
   var meta = function (j) { return e([j.type, j.lieu, j.date].filter(Boolean).join(' · ')); };
-  var offerUrl = function (j) { return 'carrieres.html?offre=' + encodeURIComponent(idOf(j)) + (CMS.qs('preview') ? '&preview=1' : '') + '#offres'; };
+  var offerUrl = CMS.offerUrl;
   var SPONT = careers.postes[0];
   CMS.mount('carrieres.html');
 
@@ -155,10 +155,10 @@ CMS.ready(function () {
   $('f-poste').value = want && postes.indexOf(want) > -1 ? want : (jobs.length ? '' : SPONT);
 
   /* Page d'une offre : ?offre=… (les brouillons seulement dans un aperçu ouvert depuis l'admin) */
-  var offerId = CMS.qs('offre');
+  var offerId = CMS.qs('offre') || CMS.pathId('carrieres');
   if (offerId) {
     var pool = CMS.isPreview() ? CMS.get('jobs') : jobs;
-    var j = pool.filter(function (x) { return idOf(x) === offerId; })[0], box = $('job-detail');
+    var j = pool.filter(function (x) { return idOf(x) === offerId || CMS.offerSlug(x) === offerId; })[0], box = $('job-detail');
     function list(title, items) {
       return items && items.length ? '<h3>' + e(title) + '</h3><ul>' + items.map(function (x) { return '<li>' + e(x) + '</li>'; }).join('') + '</ul>' : '';
     }
@@ -172,6 +172,9 @@ CMS.ready(function () {
       : '<div class="job-empty"><p>Cette offre n\'est plus disponible.</p><p class="mu" style="color:var(--mute);font-size:12px;margin-top:6px">Elle a peut-être été pourvue. Les autres offres et la candidature spontanée restent ouvertes.</p></div>');
     if (j) {
       document.title = j.t + ' - Carrières Live Y Dream';
+      var md = document.querySelector('meta[name="description"]'), canon = document.querySelector('link[rel="canonical"]');
+      if (md && j.d) md.setAttribute('content', String(j.d).slice(0, 155));
+      if (canon) canon.setAttribute('href', new URL(canon.href).origin + '/carrieres/' + CMS.offerSlug(j) + '/');
       if (postes.indexOf(j.t) < 0) { $('f-poste').insertAdjacentHTML('beforeend', '<option>' + e(j.t) + '</option>'); postes.push(j.t); }
       $('f-poste').value = j.t;
     }

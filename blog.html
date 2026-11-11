@@ -124,7 +124,7 @@ CMS.ready(function () {
 
   var initials = function (n) { return n.split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); };
   var meta = function (a) { return e(a.cat) + ' · ' + e(a.date) + ' · ' + e(a.min) + ' min'; };
-  var articleUrl = function (a) { return 'blog.html?id=' + encodeURIComponent(a.id); };
+  var articleUrl = CMS.articleUrl;
 
   function filtered() {
     var q = st.q.toLowerCase();
@@ -299,7 +299,7 @@ CMS.ready(function () {
 
   function renderArticle(id) {
     /* ?preview=1 : aperçu d'un brouillon depuis l'admin, dans le navigateur de l'auteur */
-    var a = (CMS.isPreview() ? allRaw : all).filter(function (x) { return x.id === id; })[0];
+    var a = (CMS.isPreview() ? allRaw : all).filter(function (x) { return x.id === id || CMS.articleSlug(x.id) === id; })[0];
     var view = $('article-view');
     $('blog-content').style.display = 'none';
     view.style.display = 'block';
@@ -311,11 +311,16 @@ CMS.ready(function () {
       return;
     }
 
-    document.title = a.seoT || a.t + ' - Live Y Dream';
-    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', a.seoD || a.ex);
+    /* Google affiche environ 60 caractères de titre et 155 de description */
+    document.title = a.seoT || (a.t.length <= 45 ? a.t + ' - Live Y Dream' : a.t);
+    var shortText = function (t, n) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
+    var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute('content', a.seoD || shortText(a.ex, 155));
+    /* Adresse de référence pour Google et pour le partage : la page de l'article */
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', new URL(canon.href).origin + '/blog/' + CMS.articleSlug(a.id) + '/');
 
     var b = CMS.articleHtml(a);
-    var url = location.href.split('#')[0];
+    var url = canon ? canon.href : location.href.split('#')[0];
     var enc = encodeURIComponent;
     var wa = CMS.get('settings').whatsapp;
 
@@ -382,7 +387,8 @@ CMS.ready(function () {
   render();
   /* Arrivée depuis une page d'article avec un tag : ?tag=… filtre la liste */
   if (CMS.qs('tag')) { st.tag = CMS.qs('tag'); render(); }
-  if (CMS.qs('id')) renderArticle(CMS.qs('id'));
+  var wanted = CMS.qs('id') || CMS.pathId('blog');
+  if (wanted) renderArticle(wanted);
 });
 </script>
 </body>
