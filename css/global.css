@@ -463,12 +463,14 @@ img{
   text-transform:uppercase;
   text-align:center
 }
-/* Logos sans cadre : le blanc du fichier se fond dans le gris de la bande */
 .lg img{
   max-width:100%;
-  max-height:78%;
-  object-fit:contain;
-  mix-blend-mode:multiply
+  max-height:70%;
+  object-fit:contain
+}
+/* Case blanche derrière chaque logo ; les noms sans logo restent sans cadre */
+.lg.im{
+  background:#fff
 }
 @keyframes lgmove{
   to{transform:translateX(calc(-50% - 11px))}
