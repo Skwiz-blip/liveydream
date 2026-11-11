@@ -163,6 +163,15 @@ async function render(page, content, files) {
       d.querySelectorAll('#blog-content .phero').forEach(el => el.remove()); // un seul titre principal : celui de l'article
     }
     head(d, page, w.CMS);
+    /* Liens écrits depuis la racine (/carrieres.html) : certains robots, comme l'analyse de Bing, ignorent <base href="/">
+       et cherchaient /blog/<article>/carrieres.html, qui n'existe pas */
+    d.querySelectorAll('[href],[src]').forEach(el => {
+      if (el.tagName === 'BASE') return;
+      ['href', 'src'].forEach(at => {
+        const v = el.getAttribute(at);
+        if (v && !/^([a-z][a-z0-9+.-]*:|[/#?])/i.test(v)) el.setAttribute(at, '/' + v);
+      });
+    });
     const main = d.querySelector('main');
     return { html: '<!doctype html>\n' + d.documentElement.outerHTML + '\n', words: main ? main.textContent.replace(/\s+/g, ' ').trim().split(' ').length : 0 };
   } finally {

@@ -377,6 +377,8 @@ CMS.ready(function () {
 
     /* Barre de progression + sommaire actif */
     var rp = $('rp'); rp.style.display = 'block';
+    /* Images du texte sans description : le titre de l'article en tient lieu (lecteurs d'écran, Google, Bing) */
+    [].forEach.call(view.querySelectorAll('.prose img'), function (im) { if (!(im.getAttribute('alt') || '').trim()) im.setAttribute('alt', a.t); });
     var heads = [].slice.call(view.querySelectorAll('.prose h2,.prose h3')), links = [].slice.call(view.querySelectorAll('#toc a'));
     function onScroll() {
       var h = document.documentElement;
