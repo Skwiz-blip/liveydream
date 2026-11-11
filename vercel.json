@@ -3,8 +3,8 @@
   "outputDirectory": "dist",
   "redirects": [
     {
-      "source": "/:path*/index.html",
-      "destination": "/:path*/",
+      "source": "/:path+/index.html",
+      "destination": "/:path+/",
       "statusCode": 301
     },
     {

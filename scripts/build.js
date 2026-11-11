@@ -169,7 +169,7 @@ async function render(page, content, files) {
       if (el.tagName === 'BASE') return;
       ['href', 'src'].forEach(at => {
         const v = el.getAttribute(at);
-        if (v && !/^([a-z][a-z0-9+.-]*:|[/#?])/i.test(v)) el.setAttribute(at, '/' + v);
+        if (v && !/^([a-z][a-z0-9+.-]*:|[/#?])/i.test(v)) el.setAttribute(at, v === 'index.html' ? '/' : v.indexOf('index.html#') === 0 ? '/' + v.slice(10) : '/' + v);
       });
     });
     const main = d.querySelector('main');

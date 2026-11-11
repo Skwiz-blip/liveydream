@@ -7,9 +7,16 @@ var CORE_CACHE = 'lyd-core-' + BUILD, IMG_CACHE = 'lyd-images', MAX_IMAGES = 150
 var CORE = ['./', 'index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html',
   'mentions-legales.html', 'confidentialite.html', 'images/logo-lyd-blanc.png', 'css/global.css', 'css/pages.css', 'js/config.js', 'js/db.js', 'js/cms.js'];
 
+/* Une réponse redirigée ne doit jamais être gardée : Chrome refuse de l'afficher pour une page (ERR_FAILED) */
+function usable(res) { return res && res.ok && !res.redirected && res.type !== 'opaqueredirect'; }
+
 self.addEventListener('install', function (ev) {
   ev.waitUntil(caches.open(CORE_CACHE).then(function (c) {
-    return c.addAll(CORE.map(function (u) { return new Request(u, { cache: 'reload' }); }));
+    return Promise.all(CORE.map(function (u) {
+      return fetch(new Request(u, { cache: 'reload' })).then(function (res) {
+        if (usable(res)) return c.put(u, res);
+      }).catch(function () {});
+    }));
   }).then(function () { return self.skipWaiting(); }));
 });
 
@@ -44,11 +51,14 @@ function coreFirst(req, url) {
   var key = url.origin + (url.pathname === '/' ? '/' : url.pathname);
   return caches.open(CORE_CACHE).then(function (cache) {
     return cache.match(key).then(function (hit) {
-      if (hit) return hit;
+      if (hit && !hit.redirected) return hit;
+      if (hit) cache.delete(key);
       return fetch(req).then(function (res) {
-        if (res && res.ok && req.mode === 'navigate') cache.put(key, res.clone());
+        if (usable(res) && req.mode === 'navigate') cache.put(key, res.clone());
         return res;
-      }, function () { return cache.match(url.origin + '/index.html'); });
+      }, function () {
+        return cache.match(url.origin + '/').then(function (home) { return home || cache.match(url.origin + '/index.html'); });
+      });
     });
   });
 }
