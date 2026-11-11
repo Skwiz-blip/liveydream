@@ -211,7 +211,7 @@ CMS.ready(function () {
     return '<section class="cmts" id="commentaires">' +
       (data.total ? '<h2>' + data.total + (data.total > 1 ? ' commentaires' : ' commentaire') + '</h2>' : '') +
       data.threads.map(function (t) { return one(t.c) + t.replies.map(function (r) { return one(r, true); }).join(''); }).join('') +
-      (open ? '<form class="fm cm-form" id="cm-form" novalidate><h3>Laisser un commentaire</h3>' +
+      (open ? '<form class="fm cm-form" id="cm-form" method="post" novalidate><h3>Laisser un commentaire</h3>' +
         '<p class="sb">Votre email ne sera pas publié.' + (moderate ? ' Les commentaires sont relus avant de paraître.' : '') + '</p>' +
         '<p class="cm-to" id="cm-to" hidden></p>' +
         '<div class="fg"><div><label for="cm-name">Nom *</label><input id="cm-name" name="author" required maxlength="120" autocomplete="name"></div>' +

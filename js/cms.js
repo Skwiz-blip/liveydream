@@ -763,5 +763,18 @@
     }, true);
   })();
 
+  /* Clic droit désactivé sur le site public (pas dans l'admin). Reste permis sur les liens (« ouvrir dans un nouvel onglet »)
+     et dans les champs de formulaire (coller). N'empêche pas une copie déterminée : c'est un frein, pas une protection. */
+  if (ADMIN_ORIGINS.indexOf(location.origin) < 0 && !window.LYD_NO_CACHE) {
+    document.addEventListener('contextmenu', function (ev) {
+      var t = ev.target;
+      if (t && t.closest && t.closest('a[href], input, textarea, select, [contenteditable="true"]')) return;
+      ev.preventDefault();
+    });
+    document.addEventListener('dragstart', function (ev) {
+      if (ev.target && ev.target.tagName === 'IMG') ev.preventDefault();
+    });
+  }
+
   window.CMS = CMS;
 })();

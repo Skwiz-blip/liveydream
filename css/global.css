@@ -145,7 +145,10 @@ img{
 .hd nav{
   display:flex;
   gap:30px;
-  font-size:12px
+  font-size:18px
+}
+@media (max-width:1180px) and (min-width:961px){
+  .hd nav{gap:20px}
 }
 .hd nav a{
   opacity:.85

@@ -198,6 +198,9 @@ function head(d, page, CMS) {
   meta('property', 'og:url', page.url);
   meta('property', 'og:image', image);
   meta('name', 'twitter:card', image ? 'summary_large_image' : 'summary');
+  meta('name', 'twitter:title', d.title);
+  meta('name', 'twitter:description', desc);
+  meta('name', 'twitter:image', image);
   const ld = (page.ld ? page.ld(image) : []).filter(Boolean);
   ld.forEach(obj => {
     const s = d.createElement('script');
