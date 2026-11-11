@@ -14,6 +14,7 @@ if (fs.existsSync(envFile)) {
 
 const url = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const key = process.env.SUPABASE_PUBLISHABLE_KEY || '';
+const ga = String(process.env.GA_MEASUREMENT_ID || '').trim().toUpperCase();
 
 function stop(msg) {
   console.error('config.js : ' + msg);
@@ -28,9 +29,11 @@ if (/^sb_secret_/.test(key) || role === 'service_role') stop('cette clé est la 
 if (!/^sb_publishable_/.test(key) && role !== 'anon') stop('clé inattendue : mettez la clé « publishable » (sb_publishable_…) ou « anon public ».');
 
 const out = '/* Fichier généré par scripts/config.js : ne pas modifier, ne pas enregistrer dans Git. */\n' +
-  'window.LYD_SUPABASE = ' + JSON.stringify({ url: url, key: key }) + ';\n';
+  'window.LYD_SUPABASE = ' + JSON.stringify({ url: url, key: key }) + ';\n' +
+  /* Google Analytics 4 : identifiant de mesure public (G-…), facultatif */
+  'window.LYD_GA = ' + JSON.stringify(/^G-[A-Z0-9]{4,}$/.test(ga) ? ga : '') + ';\n';
 fs.writeFileSync(path.join(root, 'js', 'config.js'), out);
 // Numéro de mise en ligne : un nouveau numéro renouvelle le cache hors ligne des visiteurs (sw.js)
 const build = (process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString(36)).slice(0, 12);
 fs.writeFileSync(path.join(root, 'sw-version.js'), '/* Généré par scripts/config.js */\nself.LYD_BUILD = ' + JSON.stringify(build) + ';\n');
-console.log('js/config.js écrit pour ' + url);
+console.log('js/config.js écrit pour ' + url + (ga ? ', Google Analytics ' + (/^G-[A-Z0-9]{4,}$/.test(ga) ? ga : 'IGNORÉ (identifiant invalide)') : ', sans Google Analytics'));

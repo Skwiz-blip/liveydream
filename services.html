@@ -166,7 +166,8 @@ CMS.ready(function () {
       '<div class="items">' + x.items.map(function (it) { return '<div><h5>' + e(it[0]) + '</h5><p>' + e(it[1]) + '</p></div>'; }).join('') + '</div>' +
       (x.priceLabel ? '<p class="price-l">' + e(x.priceLabel) + '</p>' : '') +
       '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' +
-      '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a></div></article>';
+      '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a>' +
+      (CMS.metierFor(x.t) ? ' <a class="btn ob" href="' + CMS.metierFor(x.t) + '">Tout savoir sur ce service →</a>' : '') + '</div></article>';
   }).join('');
 
   $('plans').innerHTML = CMS.get('plans').map(function (p) {

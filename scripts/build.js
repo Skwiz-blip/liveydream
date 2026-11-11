@@ -221,6 +221,27 @@ function plan(data) {
       }, crumbs([['Accueil', home], ['Blog', SITE + '/blog.html'], [a.t, url]])]
     });
   });
+  /* Pages métiers : une adresse courte à la racine, /agence-evenementielle-lome/ */
+  const svcs = Array.isArray(data.services) ? data.services : [];
+  published(data.metiers).filter(m => m && m.id && m.h1).forEach(m => {
+    const slug = slugify(m.id), url = SITE + '/' + slug + '/';
+    if (!slug || PAGES.includes(slug) || ['blog', 'carrieres', 'media', 'images', 'css', 'js', 'fonts'].includes(slug)) return;
+    const svc = svcs.find(x => x.t === m.svc) || {};
+    const faq = (m.faq || []).filter(x => x && x.q && x.a);
+    list.push({
+      tpl: 'metier.html', out: slug + '/index.html', url, kind: 'metier', image: m.img || svc.img, lastmod: '',
+      check: d => !!d.querySelector('#m-h1') && d.querySelector('#m-h1').textContent === m.h1,
+      ld: img => [{
+        '@context': 'https://schema.org', '@type': 'Service', name: m.h1, serviceType: m.k || svc.cat || undefined,
+        description: m.seoD || m.intro || undefined, url, image: img || undefined, provider: org(),
+        areaServed: [{ '@type': 'City', name: 'Lomé' }, { '@type': 'Country', name: 'Togo' }],
+        offers: (m.price || svc.price) && /\d/.test(m.price || svc.price) ? { '@type': 'Offer', description: [m.price ? m.priceLabel : svc.priceLabel, m.price || svc.price].filter(Boolean).join(' ') } : undefined
+      }, faq.length ? {
+        '@context': 'https://schema.org', '@type': 'FAQPage',
+        mainEntity: faq.map(x => ({ '@type': 'Question', name: x.q, acceptedAnswer: { '@type': 'Answer', text: String(x.a).replace(/\s+/g, ' ').trim() } }))
+      } : null, crumbs([['Accueil', home], ['Services', SITE + '/services.html'], [m.k || m.h1, url]])]
+    });
+  });
   published(data.jobs).forEach(j => {
     const slug = slugify(j.t || j.id), url = SITE + '/carrieres/' + slug + '/';
     if (!slug) return;
@@ -274,7 +295,7 @@ function sitemap(pages) {
     }
   }
   const n = k => done.filter(p => p.kind === k).length;
-  console.log('  ' + n('article') + ' pages d\'articles, ' + n('offer') + ' pages d\'offres');
+  console.log('  ' + n('metier') + ' pages métiers, ' + n('article') + ' pages d\'articles, ' + n('offer') + ' pages d\'offres');
   sitemap(pages.filter(p => !p.kind || done.indexOf(p) > -1));
   console.log('build.js : dist/ prêt' + (failed ? ', ' + failed + ' problème(s)' : '') + ' (' + SITE + ')');
 })().catch(e => { console.error('build.js : ' + e.message); process.exit(1); });

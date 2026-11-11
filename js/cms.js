@@ -74,6 +74,7 @@
     seo: {},
     clients: [],
     testimonials: [],
+    metiers: [],
     articles: [],
     about: {
       heroImg: "",
@@ -89,7 +90,7 @@
   };
 
   /* Clés de contenu publiques (jamais les messages ni les candidatures) */
-  var CONTENT_KEYS = ['settings', 'contact', 'problems', 'services', 'plan', 'plans', 'process', 'campaigns', 'jobs', 'careers', 'blogTexts', 'forms', 'texts', 'seo', 'clients', 'testimonials', 'articles', 'about', 'discussion'];
+  var CONTENT_KEYS = ['settings', 'contact', 'problems', 'services', 'plan', 'plans', 'process', 'campaigns', 'jobs', 'careers', 'blogTexts', 'forms', 'texts', 'seo', 'clients', 'testimonials', 'metiers', 'articles', 'about', 'discussion'];
   /* Données de visiteurs : gardées lors d'un retour à la version en ligne, jamais publiées telles quelles */
   var PRIVATE_KEYS = ['messages', 'applications', 'comments'];
   var mediaCache = null;
@@ -267,6 +268,19 @@
     offerSlug: function (j) { return slugify(j.t || j.id || ''); },
     offerUrl: function (j) {
       return CMS.built && !CMS.isPreview() ? 'carrieres/' + CMS.offerSlug(j) + '/' : 'carrieres.html?offre=' + encodeURIComponent(j.id || slugify(j.t)) + (CMS.isPreview() ? '&preview=1' : '') + '#offres';
+    },
+    /* Pages métiers (une par service) : publiées seulement, sauf dans un aperçu ouvert depuis l'admin */
+    metiers: function () {
+      var all = (CMS.get('metiers') || []).filter(function (m) { return m && m.id && m.h1; });
+      return CMS.isPreview() ? all : CMS.published(all);
+    },
+    metierUrl: function (m) {
+      return CMS.built && !CMS.isPreview() ? slugify(m.id) + '/' : 'metier.html?p=' + encodeURIComponent(m.id);
+    },
+    /* Page métier rattachée à un service (par son nom), ou adresse vide */
+    metierFor: function (serviceTitle) {
+      var m = CMS.metiers().filter(function (x) { return x.svc && x.svc === serviceTitle; })[0];
+      return m ? CMS.metierUrl(m) : '';
     },
     /* Dernier morceau de l'adresse : /blog/<slug>/ → slug */
     pathId: function (folder) {
@@ -555,6 +569,10 @@
         if (!r.sent && !inDb) keep();
         return { sent: r.sent || inDb, failed: !r.sent && !inDb };
       });
+    }).then(function (r) {
+      /* Conversion pour Google Analytics : demande de contact (prospect) ou candidature */
+      if (r.sent) CMS.track(kind === 'applications' ? 'job_application' : 'generate_lead', { form: kind === 'applications' ? 'candidature' : 'contact', service: data.besoin || data.poste || '' });
+      return r;
     });
     function mail() {
     var payload = {};
@@ -601,7 +619,9 @@
 
   CMS.footer = function () {
     var s = CMS.get('settings'), sv = CMS.get('services');
-    var svc = sv.map(function (x, i) { return '<li><a href="services.html#s' + (i + 1) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
+    var titles = sv.map(function (x) { return x.t; });
+    var svc = sv.map(function (x, i) { return '<li><a href="' + (CMS.metierFor(x.t) || 'services.html#s' + (i + 1)) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
+      CMS.metiers().filter(function (m) { return titles.indexOf(m.svc) < 0; }).map(function (m) { return '<li><a href="' + CMS.metierUrl(m) + '">' + esc(m.k || m.h1) + '</a></li>'; }).join('') +
       '<li><a href="services.html#tarifs">Abonnement PME</a></li>';
     return '<footer class="ft dk" data-lyd="footer"><div class="w">' +
       '<div class="ft-g">' +
@@ -717,6 +737,31 @@
     });
     try { window.opener.postMessage({ type: 'lyd-preview-ready' }, '*'); } catch (e) {}
   }
+
+  /* Google Analytics 4 : seulement sur liveydream.com, jamais pendant la construction des pages ni dans un aperçu de l'admin.
+     Suivi en plus des pages vues : clics WhatsApp, clics sur un numéro de téléphone, formulaires envoyés. */
+  CMS.track = function (name, params) {
+    try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); } catch (e) {}
+  };
+  (function () {
+    var id = window.LYD_GA;
+    if (!id || window.LYD_NO_CACHE || location.hostname !== 'liveydream.com' || CMS.isPreview()) return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', id);
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
+    document.head.appendChild(tag);
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      if (/^tel:/i.test(href)) CMS.track('phone_click', { phone: href.slice(4) });
+      else if (/^https?:[/][/](wa[.]me|api[.]whatsapp[.]com|web[.]whatsapp[.]com)[/]/i.test(href)) CMS.track('whatsapp_click', { link_url: href.split('?')[0] });
+    }, true);
+  })();
 
   window.CMS = CMS;
 })();

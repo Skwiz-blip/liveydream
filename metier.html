@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+/* Si la page casse chez un visiteur, l'erreur s'affiche en bas de l'écran (et dans la console) : une capture suffit pour comprendre */
+(function () {
+  var CHECK = 'header.hd', errors = [], box = null, done = false;
+  function log(msg) {
+    errors.push(msg);
+    try { console.error('[LYD] ' + msg); } catch (e) {}
+    if (done) show();
+  }
+  window.addEventListener('error', function (ev) {
+    var t = ev.target, f = ev.filename || '';
+    if (t && t !== window && t.tagName) {
+      if (t.tagName === 'SCRIPT' || (t.tagName === 'LINK' && /stylesheet/.test(t.rel))) log('Fichier non chargé : ' + (t.src || t.href));
+      return;
+    }
+    if (/^(chrome|moz|safari|safari-web)-extension:/.test(f) || /ResizeObserver loop/.test(ev.message)) return;
+    log((ev.message || 'Erreur inconnue') + (f ? ' (' + f.split('/').pop() + ', ligne ' + ev.lineno + ':' + ev.colno + ')' : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (ev) {
+    var r = ev.reason;
+    log('Opération échouée : ' + (r && r.message ? r.message : String(r)));
+  });
+  function show() {
+    if (!document.body || !errors.length) return;
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'lyd-err';
+      box.setAttribute('aria-live', 'assertive');
+      box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;max-height:60vh;overflow:auto;background:#fff;color:#111;border:2px solid #b3261e;padding:14px 16px;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;text-align:left;box-shadow:0 8px 30px rgba(0,0,0,.35)';
+      document.body.appendChild(box);
+    }
+    var btn = 'margin:0 8px 0 0;padding:7px 14px;border:1px solid #111;background:#fff;color:#111;font:inherit;cursor:pointer';
+    box.style.display = 'block';
+    box.innerHTML = '<strong style="color:#b3261e">Une erreur empêche cette page de fonctionner correctement.</strong><br>Faites une capture de ce cadre et envoyez-la à l\'équipe Live Y Dream.' +
+      '<pre style="white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:10px;background:#f4f4f4;color:#111;font:12px/1.45 Consolas,Menlo,monospace"></pre>' +
+      '<button type="button" style="' + btn + '">Copier le détail</button><button type="button" style="' + btn + '">Fermer</button>';
+    var pre = box.querySelector('pre'), b = box.querySelectorAll('button');
+    pre.textContent = errors.join('\n') + '\n\nPage : ' + location.href + '\nNavigateur : ' + navigator.userAgent + '\nHeure : ' + new Date().toString();
+    b[0].onclick = function () {
+      function copied() { b[0].textContent = 'Copié'; }
+      function select() {
+        var r = document.createRange(), s = window.getSelection();
+        r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r);
+        try { if (document.execCommand('copy')) copied(); } catch (e) {}
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(pre.textContent).then(copied, select); else select();
+    };
+    b[1].onclick = function () { box.style.display = 'none'; };
+  }
+  /* La page est jugée construite quand CHECK existe et se voit ; sinon on le signale, même sans erreur */
+  function check(late) {
+    if (done || (!late && window.LYD_WAIT)) return;
+    var el = document.querySelector(CHECK), hidden = !!el && !el.getClientRects().length;
+    if (late && el && !hidden && !errors.length) return;
+    done = true;
+    if (!el) log(late ? "Après 20 secondes, la page n'est toujours pas construite (« " + CHECK + ' » absent).' : "La page ne s'est pas construite (« " + CHECK + ' » absent).');
+    else if (hidden) log('La page est construite mais cachée (« ' + CHECK + " » masqué). Un bloqueur de publicités en est sans doute la cause : désactivez-le pour ce site.");
+    show();
+  }
+  window.LYD_CHECK = function () { check(false); };
+  window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
+  setTimeout(function () { check(true); }, 20000);
+})();
+</script>
+<title>Nos services - Live Y Dream</title>
+<meta name="description" content="Live Y Dream, agence de communication à Lomé : un service, une équipe dédiée, des résultats mesurés.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div data-lyd="header"></div>
+
+<main id="metier">
+  <section class="dk phero mt-hero">
+    <div class="w phero-g">
+      <div>
+        <span class="k" id="m-k">Nos services</span>
+        <h1 id="m-h1">Nos services</h1>
+        <p class="mt-intro" id="m-intro"></p>
+        <div class="row-btn" id="m-btns">
+          <a class="btn" href="#devis">Demander un devis gratuit</a>
+          <a class="btn o" id="m-wa" href="#" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+        </div>
+        <p class="crumb" id="m-crumb"><a href="index.html">Accueil</a> / <a href="services.html">Services</a></p>
+      </div>
+      <div class="phero-img ph-box" id="m-img"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="m-main">
+    <div class="w mt-body">
+      <div class="prose" id="m-text"></div>
+      <aside class="mt-side" id="m-side"></aside>
+    </div>
+  </section>
+
+  <section class="sec gy" id="m-items-s" hidden>
+    <div class="w">
+      <p class="k">Ce que nous livrons</p>
+      <h2 class="h2" style="margin-top:20px" id="m-items-t">Ce qui est compris</h2>
+      <div class="items mt-items" id="m-items"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="m-steps-s" hidden>
+    <div class="w">
+      <p class="k">Notre méthode</p>
+      <h2 class="h2" style="margin-top:20px">Comment nous travaillons</h2>
+      <div class="steps" id="m-steps"></div>
+      <p class="mt-delay" id="m-delay" hidden></p>
+    </div>
+  </section>
+
+  <section class="sec gy" id="m-cases-s" hidden>
+    <div class="w">
+      <p class="k">Réalisations</p>
+      <h2 class="h2" style="margin-top:20px">Ils nous ont fait confiance</h2>
+      <div class="mt-cases" id="m-cases"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="m-faq-s" hidden>
+    <div class="w mt-faq-w">
+      <p class="k">Questions fréquentes</p>
+      <h2 class="h2" style="margin-top:20px">Vos questions, nos réponses</h2>
+      <div class="mt-faq" id="m-faq"></div>
+    </div>
+  </section>
+
+  <section class="sec gy" id="m-arts-s" hidden>
+    <div class="w">
+      <p class="k">À lire aussi</p>
+      <h2 class="h2" style="margin-top:20px">Nos conseils sur le sujet</h2>
+      <div class="mt-arts" id="m-arts"></div>
+    </div>
+  </section>
+
+  <section class="sec dk mt-cta" id="devis">
+    <div class="w mt-cta-g">
+      <div>
+        <p class="k">Devis gratuit</p>
+        <h2 id="m-cta-t">Parlons de votre projet</h2>
+        <p class="mu">Réponse sous 24h ouvrées. Le premier échange et le devis sont gratuits et sans engagement.</p>
+        <div class="mt-contact" id="m-contact"></div>
+      </div>
+      <form class="fm" id="form" novalidate>
+        <div class="fg">
+          <div><label for="f-nom">Prénom &amp; Nom *</label><input id="f-nom" name="nom" required autocomplete="name"></div>
+          <div><label for="f-ent">Entreprise</label><input id="f-ent" name="entreprise" autocomplete="organization"></div>
+          <div><label for="f-mail">Email *</label><input id="f-mail" name="email" type="email" required autocomplete="email"></div>
+          <div><label for="f-wa">WhatsApp *</label><input id="f-wa" name="whatsapp" type="tel" required autocomplete="tel"></div>
+          <div class="full"><label for="f-msg">Votre projet en quelques mots</label><textarea id="f-msg" name="message"></textarea></div>
+          <div class="full"><label for="f-src">Comment nous avez-vous connus ? *</label><select id="f-src" name="source" required></select></div>
+        </div>
+        <p class="err" id="err" role="alert"></p>
+        <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn b" id="send" type="submit">Envoyer ma demande</button>
+        <p class="ok" id="ok" role="status"></p>
+        <p class="nt">Vos informations servent uniquement à répondre à votre demande : elles ne sont ni vendues ni partagées. <a href="confidentialite.html">En savoir plus</a></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/cms.js"></script>
+<script>
+CMS.ready(function () {
+  var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
+  var s = CMS.get('settings'), c = CMS.get('contact');
+  CMS.mount('services.html');
+
+  /* Quelle page ? /agence-evenementielle-lome/ en ligne, metier.html?p=… en local et dans les aperçus */
+  var wanted = CMS.qs('p') || ((/^\/([^\/?#]+)\/?$/.exec(location.pathname) || [])[1] || '');
+  try { wanted = decodeURIComponent(wanted); } catch (x) {}
+  var all = CMS.metiers();
+  var m = all.filter(function (x) { return wanted && CMS.slugify(x.id) === CMS.slugify(wanted); })[0];
+
+  if (!m) {
+    /* Sans page précise : la liste des pages métiers (pratique dans un aperçu ouvert depuis l'admin) */
+    $('m-intro').textContent = all.length ? 'Choisissez un service :' : 'Cette page n\'existe pas ou n\'est pas encore publiée.';
+    $('m-btns').hidden = true;
+    $('m-text').innerHTML = all.length ? '<ul>' + all.map(function (x) {
+      return '<li><a href="' + CMS.metierUrl(x) + '">' + e(x.h1) + '</a>' + (x.status === 'brouillon' ? ' (brouillon)' : '') + '</li>';
+    }).join('') + '</ul>' : '<p><a href="services.html">Voir tous nos services →</a></p>';
+    $('devis').hidden = true;
+    return;
+  }
+
+  var svc = CMS.get('services').filter(function (x) { return x.t === m.svc; })[0] || {};
+  var paras = function (t) {
+    return String(t || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean)
+      .map(function (p) { return '<p>' + e(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+  };
+  var cut = function (t, n) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
+
+  /* En-tête pour Google et les partages */
+  document.title = m.seoT || (m.h1 + ' - Live Y Dream');
+  var desc = document.querySelector('meta[name="description"]');
+  if (desc) desc.setAttribute('content', m.seoD || cut(m.intro, 155));
+  var canon = document.querySelector('link[rel="canonical"]');
+  if (canon) canon.setAttribute('href', location.origin + '/' + CMS.slugify(m.id) + '/');
+
+  $('m-k').textContent = m.k || svc.cat || 'Nos services';
+  $('m-h1').textContent = m.h1;
+  $('m-intro').textContent = m.intro || '';
+  $('m-img').innerHTML = CMS.ph(m.img || svc.img, m.k || svc.imgLabel || '', m.h1);
+  $('m-crumb').innerHTML = '<a href="index.html">Accueil</a> / <a href="services.html">Services</a> / ' + e(m.k || m.h1);
+
+  var need = m.need || svc.need || m.k || m.h1;
+  var waText = 'Bonjour Live Y Dream, je souhaite un devis : ' + m.h1 + '.';
+  var wa = s.whatsapp + (s.whatsapp.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(waText);
+  $('m-wa').href = wa;
+
+  /* Texte principal, en sections */
+  $('m-text').innerHTML = (m.sections || []).filter(function (x) { return x.t || x.d; }).map(function (x) {
+    return (x.t ? '<h2>' + e(x.t) + '</h2>' : '') + paras(x.d);
+  }).join('');
+
+  /* Encadré : prix indicatif et contacts directs */
+  var price = m.price || svc.price, priceLabel = m.price ? m.priceLabel : svc.priceLabel;
+  var phone = (c.phones || [s.phone])[0] || s.phone;
+  $('m-side').innerHTML = '<div class="mt-card">' +
+    (price ? (priceLabel ? '<p class="price-l">' + e(priceLabel) + '</p>' : '<p class="price-l">Tarif</p>') + '<p class="price-v' + (priceLabel ? '' : ' sm') + '">' + e(price) + '</p>' : '') +
+    '<a class="btn b" href="#devis">Demander un devis gratuit</a>' +
+    '<a class="btn ob" href="' + e(wa) + '" target="_blank" rel="noopener">WhatsApp direct</a>' +
+    (phone ? '<a class="mt-tel" href="tel:' + e(phone.replace(/\s/g, '')) + '">' + e(phone) + '</a>' : '') +
+    '</div>';
+
+  /* Livrables : ceux de la page, sinon ceux du service */
+  var items = (m.items && m.items.length ? m.items : svc.items) || [];
+  if (items.length) {
+    $('m-items').innerHTML = items.map(function (it) { return '<div><h5>' + e(it[0]) + '</h5><p>' + e(it[1]) + '</p></div>'; }).join('');
+    $('m-items-s').hidden = false;
+  }
+
+  /* Méthode : les étapes de la page, sinon les étapes générales de l'agence */
+  var steps = (m.method && m.method.length ? m.method : CMS.get('process').map(function (p) { return [p.t, p.d]; })) || [];
+  if (steps.length) {
+    $('m-steps').innerHTML = steps.map(function (p, i) { return '<div class="st"><div class="no">0' + (i + 1) + '</div><h4>' + e(p[0]) + '</h4><p>' + e(p[1]) + '</p></div>'; }).join('');
+    $('m-steps-s').hidden = false;
+  }
+  if (m.delay) { $('m-delay').textContent = m.delay; $('m-delay').hidden = false; }
+
+  /* Réalisations liées */
+  var camps = CMS.published(CMS.get('campaigns')).filter(function (x) { return (m.camps || []).indexOf(x.id) > -1; });
+  if (camps.length) {
+    $('m-cases').innerHTML = camps.map(function (x) {
+      var anchor = String(x.client || '').toLowerCase().replace(/\s+/g, '-');
+      return '<a class="mt-case" href="campagnes.html#' + e(anchor) + '"><div class="im ph-box">' + CMS.ph(x.img, x.cat, x.t) + '</div>' +
+        '<p class="mt-case-k">' + e(x.cat) + (x.year ? ' · ' + e(x.year) : '') + '</p><h3>' + e(x.t) + '</h3><p>' + e(cut(x.d, 170)) + '</p>' +
+        (x.res && x.res.length ? '<div class="mt-res">' + x.res.slice(0, 3).map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div>' : '') +
+        '</a>';
+    }).join('');
+    $('m-cases-s').hidden = false;
+  }
+
+  /* FAQ */
+  var faq = (m.faq || []).filter(function (x) { return x.q && x.a; });
+  if (faq.length) {
+    $('m-faq').innerHTML = faq.map(function (x) { return '<details><summary>' + e(x.q) + '</summary><div>' + paras(x.a) + '</div></details>'; }).join('');
+    $('m-faq-s').hidden = false;
+  }
+
+  /* Articles liés */
+  var arts = CMS.published(CMS.get('articles')).filter(function (a) { return (m.arts || []).indexOf(a.id) > -1; });
+  if (arts.length) {
+    $('m-arts').innerHTML = arts.map(function (a) {
+      return '<a class="mt-art" href="' + CMS.articleUrl(a) + '"><h3>' + e(a.t) + '</h3><p>' + e(cut(a.ex, 140)) + '</p><span>Lire l\'article →</span></a>';
+    }).join('');
+    $('m-arts-s').hidden = false;
+  }
+
+  /* Coordonnées et formulaire court */
+  $('m-cta-t').textContent = m.ctaT || 'Parlons de votre projet';
+  $('m-contact').innerHTML = (c.phones || [s.phone]).filter(Boolean).map(function (p) { return '<a href="tel:' + e(p.replace(/\s/g, '')) + '">' + e(p) + '</a>'; }).join('') +
+    '<a href="' + e(wa) + '" target="_blank" rel="noopener">WhatsApp direct</a>';
+  $('f-src').innerHTML = '<option value="">Choisissez une réponse</option>' + CMS.SOURCES.map(function (x) { return '<option>' + e(x) + '</option>'; }).join('');
+
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var f = ev.target, v = function (n) { return f.elements[n].value.trim(); };
+    var err = $('err'); err.style.display = 'none';
+    if (!v('nom') || !v('email') || !v('whatsapp')) { err.textContent = 'Merci de renseigner votre nom, votre email et votre numéro WhatsApp.'; err.style.display = 'block'; return; }
+    if (!v('source')) { err.textContent = 'Merci de nous dire comment vous nous avez connus.'; err.style.display = 'block'; return; }
+    if (!/^\S+@\S+\.\S+$/.test(v('email'))) { err.textContent = 'Cette adresse email ne semble pas valide.'; err.style.display = 'block'; return; }
+    var ok = $('ok'), send = $('send');
+    if (v('_honey')) { ok.textContent = 'Merci, votre demande est envoyée.'; ok.style.display = 'block'; f.reset(); return; }
+    var data = { id: CMS.uid(), nom: v('nom'), entreprise: v('entreprise'), email: v('email'), whatsapp: v('whatsapp'), besoin: need, budget: '', message: v('message'), source: v('source'), date: new Date().toISOString() };
+    var txt = 'Bonjour Live Y Dream, je suis ' + data.nom + (data.entreprise ? ' (' + data.entreprise + ')' : '') + '.\nBesoin : ' + need + '\n' +
+      (data.message ? data.message + '\n' : '') + 'Email : ' + data.email + ' · WhatsApp : ' + data.whatsapp;
+    var link = s.whatsapp + '?text=' + encodeURIComponent(txt);
+    send.disabled = true;
+    CMS.sendForm('messages', data, 'Demande de contact (' + need + ') - ' + data.nom).then(function (r) {
+      var w = '<a href="' + e(link) + '" target="_blank" rel="noopener"><strong>envoyez-la par WhatsApp</strong></a>';
+      ok.innerHTML = r.sent ? 'Merci ' + e(data.nom) + ', votre demande est bien envoyée. Nous vous répondons sous 24h ouvrées.'
+        : 'Merci ' + e(data.nom) + '. L\'envoi automatique n\'a pas abouti : pour que votre demande nous parvienne, ' + w + '.';
+      ok.style.display = 'block';
+      send.disabled = false;
+      f.reset();
+    });
+  });
+});
+</script>
+</body>
+</html>
