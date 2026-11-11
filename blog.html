@@ -140,7 +140,7 @@ CMS.ready(function () {
 
   function footerRow(a) {
     /* Le nom de la personne qui a publié n'est pas affiché : les articles sont signés par l'agence */
-    return '<div class="au"><span>Live Y Dream</span><a href="' + articleUrl(a) + '">Lire l\'article →</a></div>';
+    return '<div class="au"><span></span><a href="' + articleUrl(a) + '">Lire l\'article →</a></div>';
   }
 
   function cats() {
@@ -351,7 +351,7 @@ CMS.ready(function () {
       '</aside></div>' +
 
       '<div class="atags">' + a.tags.map(function (t) { return '<a href="blog.html?tag=' + enc(t) + '">' + e(t) + '</a>'; }).join('') + '</div>' +
-      '<div class="abox"><i class="av">LYD</i><div><b>Live Y Dream</b><p>' + e(T.bio) + '</p></div></div>' + commentsHtml(a) + '</div>' +
+      commentsHtml(a) + '</div>' +
 
       '<section class="gy rel"><div class="w"><p class="k">À lire aussi</p>' +
         '<div class="rel-h"><h2 class="h2">Continuez votre lecture</h2><a class="btn ob" href="blog.html">Tous les articles</a></div>' +
