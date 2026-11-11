@@ -252,10 +252,11 @@
       var m = /^media:(.+)$/.exec(u);
       if (m) {
         var it = CMS.mediaItem(m[1]);
-        if (!it) return '';
-        /* Image enregistrée en fichier lors de la mise en ligne (scripts/build.js), si elle n'a pas changé depuis */
+        /* Image enregistrée en fichier lors de la mise en ligne (scripts/build.js) : utilisée si la Médiathèque
+           n'a pas été chargée (cas normal sur le site), ou si l'image n'a pas changé depuis */
         var file = (window.LYD_MEDIA || {})[m[1]];
-        return file && file.n === String(it.src).length ? CMS.root + file.f : it.src;
+        if (file && (!it || file.n === String(it.src).length)) return CMS.root + file.f;
+        return it ? it.src : '';
       }
       if (/^(data:|https?:|\/)/i.test(u)) return u;
       return CMS.root + u;
@@ -436,13 +437,42 @@
     try { store().setItem(KEY, JSON.stringify(saved)); } catch (e) {}
   };
   CMS.hasDraft = function (key) { return load()[key] !== undefined; };
+  /* Images de la Médiathèque : plusieurs Mo de texte. Elles ne sont téléchargées que si la page en a besoin :
+     sur le site en ligne, elles existent déjà en fichiers (window.LYD_MEDIA, écrit par scripts/build.js).
+     L'admin les charge toujours (LYD_NEED_MEDIA) : sa publication recalcule la Médiathèque à partir d'elles. */
+  function mediaNeeded(data) {
+    /* L'admin (son adresse, ou le dossier admin/ en local) charge toujours la Médiathèque, même avec un ancien boot.js */
+    if (window.LYD_NEED_MEDIA || ADMIN_ORIGINS.indexOf(location.origin) > -1 || /\/admin\//.test(location.pathname)) return true;
+    if (typeof CMS.isPreview === 'function' && CMS.isPreview()) return true;
+    var files = window.LYD_MEDIA || {}, need = false;
+    (JSON.stringify(data).match(/media:[a-z0-9]+/gi) || []).forEach(function (ref) { if (!files[ref.slice(6)]) need = true; });
+    return need;
+  }
+  CMS.loadMedia = function () {
+    if (typeof window.LYD_MEDIA_LOADER === 'function') return window.LYD_MEDIA_LOADER();
+    return DB.select('site_content', 'select=key,value&key=eq.media&is_public=eq.true', { anon: true }).then(function (rows) {
+      var r = (rows || []).filter(function (x) { return x.key === 'media'; })[0];
+      return r ? r.value : null;
+    });
+  };
   CMS.loadPublished = function () {
     if (!window.DB) return Promise.reject(new Error('Base de données indisponible.'));
-    return DB.select('site_content', 'select=key,value&is_public=eq.true', { anon: true }).then(function (rows) {
+    return DB.select('site_content', 'select=key,value&is_public=eq.true&key=neq.media', { anon: true }).then(function (rows) {
       var data = {};
-      (rows || []).forEach(function (r) { data[r.key] = r.value; });
+      (rows || []).forEach(function (r) { if (r.key !== 'media') data[r.key] = r.value; });
+      if (!mediaNeeded(data)) return data;
+      return CMS.loadMedia().then(function (m) {
+        if (m) data.media = m;
+        return data;
+      }, function (e) {
+        if (window.LYD_NEED_MEDIA) throw e; // l'admin ne démarre jamais sans la Médiathèque
+        return data;
+      });
+    }).then(function (data) {
       setPublished(data);
-      try { localStorage.setItem(PUB_CACHE, JSON.stringify(data)); } catch (e) {}
+      try { localStorage.setItem(PUB_CACHE, JSON.stringify(data)); } catch (e) {
+        try { localStorage.removeItem(PUB_CACHE); } catch (x) {} // copie trop grosse : pas de copie plutôt qu'une copie périmée
+      }
       return data;
     });
   };
@@ -461,8 +491,14 @@
   try { copy = window.LYD_NO_CACHE ? null : JSON.parse(localStorage.getItem(PUB_CACHE)); } catch (e) {}
   window.LYD_WAIT = !copy;
   if (copy) { setPublished(copy); CMS.fromCache = true; start(); }
+  var withoutMedia = function (d) {
+    var o = {};
+    Object.keys(d || {}).forEach(function (k) { if (k !== 'media') o[k] = d[k]; });
+    return JSON.stringify(o);
+  };
   CMS.loadPublished().then(function (fresh) {
-    if (copy && JSON.stringify(fresh) !== JSON.stringify(copy)) refreshPage(JSON.stringify(fresh).length);
+    var changed = withoutMedia(fresh) !== withoutMedia(copy) || (fresh.media && JSON.stringify(fresh.media) !== JSON.stringify(copy && copy.media));
+    if (copy && changed) refreshPage(JSON.stringify(fresh).length);
   }, function (e) {
     try { console.error('[LYD] Contenu du site non chargé : ' + e.message); } catch (x) {}
     CMS.offline = true;

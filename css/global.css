@@ -740,3 +740,19 @@ img{
 #toTop.inv:hover{
   background:#e5e5e5
 }
+
+/* Campagnes de l'accueil : la case prend la forme de la photo, affichée entière */
+.camp .ph:has(img){
+  aspect-ratio:auto;
+  padding:0;
+  display:block;
+  position:relative;
+  background:none
+}
+.camp .ph:has(img) img{
+  display:block;
+  width:100%;
+  height:auto;
+  margin:0;
+  object-fit:contain
+}

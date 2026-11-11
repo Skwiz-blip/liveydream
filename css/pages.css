@@ -1225,3 +1225,24 @@
   .mt-side{position:static}
   .mt-items{grid-template-columns:1fr}
 }
+
+/* Cartes à image (campagnes, articles, réalisations) : la case prend la forme de la photo, affichée entière, sans recadrage */
+.cc .im:has(img),.ar .im:has(img),.feat .im:has(img),.mt-case .im:has(img),.mod-c .im:has(img){
+  aspect-ratio:auto;
+  padding:0;
+  display:block;
+  position:relative;
+  background:none
+}
+.cc .im:has(img) img,.ar .im:has(img) img,.feat .im:has(img) img,.mt-case .im:has(img) img,.mod-c .im:has(img) img{
+  position:static;
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain
+}
+.cc .im:has(img) .ph-l,.ar .im:has(img) .ph-l,.feat .im:has(img) .ph-l,.mt-case .im:has(img) .ph-l{
+  position:absolute;
+  left:14px;
+  bottom:14px
+}
