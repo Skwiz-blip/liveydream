@@ -133,6 +133,15 @@ img{
   font-size:13px;
   text-transform:uppercase
 }
+.logo img{
+  display:block;
+  height:20px;
+  width:auto
+}
+.ft .logo img{
+  height:24px;
+  margin-bottom:4px
+}
 .hd nav{
   display:flex;
   gap:30px;
@@ -458,6 +467,9 @@ img{
   max-height:70%;
   object-fit:contain
 }
+.lg.im{
+  background:#fff
+}
 @keyframes lgmove{
   to{transform:translateX(calc(-50% - 11px))}
 }
@@ -497,6 +509,19 @@ img{
 .tc span{
   font-size:10px;
   color:var(--mute)
+}
+.tc-who{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:auto
+}
+.tc-who img{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  flex:none
 }
 
 /* CTA */

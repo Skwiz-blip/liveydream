@@ -17,7 +17,7 @@ const out = path.join(root, 'dist');
 /* Adresse publique du site (adresses de référence, sitemap, aperçus) ; le site de test liveydream.vercel.app reste caché à Google (vercel.json) */
 const SITE = (process.env.SITE_URL || 'https://liveydream.com').replace(/\/+$/, '');
 const NAME = 'Live Y Dream';
-const PAGES = ['index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html'];
+const PAGES = ['index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html', 'mentions-legales.html', 'confidentialite.html'];
 /* Jamais mis en ligne : outils, base, documents de travail, secrets */
 const SKIP = new Set(['.git', '.github', '.dist', '.gitignore', '.vercelignore', '.vscode', '.claude', 'admin', 'database', 'dist', 'node_modules', 'ref', 'scripts', 'package.json', 'package-lock.json', 'vercel.json']);
 const skipFile = name => SKIP.has(name) || /\.(docx?|md)$/i.test(name) || /^\.env/.test(name);
@@ -104,7 +104,7 @@ function business(data, image) {
   const s = data.settings || {}, c = data.contact || {};
   const o = {
     '@context': 'https://schema.org', '@type': 'LocalBusiness', '@id': SITE + '/#agence',
-    name: NAME, url: SITE + '/', description: s.baseline || undefined, image: image || undefined,
+    name: NAME, url: SITE + '/', description: s.baseline || undefined, image: image || undefined, logo: SITE + '/images/logo-lyd-noir.png',
     telephone: s.phone || undefined, email: s.email || undefined, foundingDate: '2013', priceRange: 'FCFA',
     address: { '@type': 'PostalAddress', streetAddress: (c.address || [])[0] || undefined, addressLocality: 'Lomé', addressCountry: 'TG' },
     openingHoursSpecification: hoursSpec(c.hours),
@@ -113,7 +113,7 @@ function business(data, image) {
   if (!o.openingHoursSpecification.length) delete o.openingHoursSpecification;
   return o;
 }
-const org = () => ({ '@type': 'Organization', '@id': SITE + '/#agence', name: NAME, url: SITE + '/' });
+const org = () => ({ '@type': 'Organization', '@id': SITE + '/#agence', name: NAME, url: SITE + '/', logo: SITE + '/images/logo-lyd-noir.png' });
 function crumbs(items) {
   return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((x, i) => ({ '@type': 'ListItem', position: i + 1, name: x[0], item: x[1] })) };
 }

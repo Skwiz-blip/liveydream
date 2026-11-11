@@ -64,22 +64,22 @@
     },
     {
       "source": "/mentions-legales",
-      "destination": "/contact.html",
+      "destination": "/mentions-legales.html",
       "statusCode": 301
     },
     {
       "source": "/mentions-legales/",
-      "destination": "/contact.html",
+      "destination": "/mentions-legales.html",
       "statusCode": 301
     },
     {
       "source": "/politique-de-confidentialite",
-      "destination": "/contact.html",
+      "destination": "/confidentialite.html",
       "statusCode": 301
     },
     {
       "source": "/politique-de-confidentialite/",
-      "destination": "/contact.html",
+      "destination": "/confidentialite.html",
       "statusCode": 301
     },
     {

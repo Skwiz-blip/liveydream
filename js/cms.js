@@ -581,13 +581,18 @@
     ['blog.html', 'Blog'], ['a-propos.html', 'À propos'], ['carrieres.html', 'Carrières'], ['contact.html', 'Contact']
   ];
 
+  /* Logo de l'agence (fichier blanc pour l'en-tête et le pied de page sombres) ; le nom reste lisible par Google et les lecteurs d'écran */
+  CMS.logo = function (s) {
+    return '<a class="logo" href="index.html"><img src="' + CMS.root + 'images/logo-lyd-blanc.png" width="283" height="39" alt="' + esc(s.brand || 'Live Y Dream') + '"></a>';
+  };
+
   CMS.header = function (active) {
     var s = CMS.get('settings');
     var links = NAV.map(function (n) {
       return '<a href="' + n[0] + '"' + (n[0] === active ? ' class="on"' : '') + '>' + n[1] + '</a>';
     }).join('');
     return '<header class="hd dk" data-lyd="header"><div class="w">' +
-      '<a class="logo" href="index.html">' + esc(s.brand) + '</a>' +
+      CMS.logo(s) +
       '<nav id="nav">' + links + '</nav>' +
       '<a class="btn cta" href="contact.html">Devis gratuit</a>' +
       '<button class="burger" aria-label="Menu" onclick="document.getElementById(\'nav\').classList.toggle(\'open\')">☰</button>' +
@@ -600,12 +605,12 @@
       '<li><a href="services.html#tarifs">Abonnement PME</a></li>';
     return '<footer class="ft dk" data-lyd="footer"><div class="w">' +
       '<div class="ft-g">' +
-      '<div><a class="logo" href="index.html">' + esc(s.brand) + '</a><p>' + esc(s.baseline) + '</p></div>' +
+      '<div>' + CMS.logo(s) + '<p>' + esc(s.baseline) + '</p></div>' +
       '<div><h5>Services</h5><ul>' + svc + '</ul></div>' +
       '<div><h5>Agence</h5><ul><li><a href="a-propos.html">Notre histoire</a></li><li><a href="a-propos.html#valeurs">Notre équipe</a></li><li><a href="campagnes.html">Nos réalisations</a></li><li><a href="blog.html">Blog &amp; Ressources</a></li><li><a href="carrieres.html">Rejoindre LYD</a></li></ul></div>' +
       '<div><h5>Contact</h5><ul><li><a href="tel:' + esc(s.phone.replace(/\s/g, '')) + '">' + esc(s.phone) + '</a></li><li><a href="mailto:' + esc(s.email) + '">' + esc(s.email) + '</a></li><li><a href="' + esc(s.whatsapp) + '" target="_blank" rel="noopener">WhatsApp direct</a></li><li><a href="contact.html">Demander un devis</a></li></ul></div>' +
       '</div>' +
-      '<div class="ft-b"><span>' + new Date().getFullYear() + ' Live Y Dream · Tous droits réservés · Lomé, Togo</span><span>Mentions légales · Confidentialité</span></div>' +
+      '<div class="ft-b"><span>' + new Date().getFullYear() + ' Live Y Dream · Tous droits réservés · Lomé, Togo</span><span><a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a></span></div>' +
       '</div></footer>';
   };
 

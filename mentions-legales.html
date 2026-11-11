@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+/* Si la page casse chez un visiteur, l'erreur s'affiche en bas de l'écran (et dans la console) : une capture suffit pour comprendre */
+(function () {
+  var CHECK = 'header.hd', errors = [], box = null, done = false;
+  function log(msg) {
+    errors.push(msg);
+    try { console.error('[LYD] ' + msg); } catch (e) {}
+    if (done) show();
+  }
+  window.addEventListener('error', function (ev) {
+    var t = ev.target, f = ev.filename || '';
+    if (t && t !== window && t.tagName) {
+      if (t.tagName === 'SCRIPT' || (t.tagName === 'LINK' && /stylesheet/.test(t.rel))) log('Fichier non chargé : ' + (t.src || t.href));
+      return;
+    }
+    if (/^(chrome|moz|safari|safari-web)-extension:/.test(f) || /ResizeObserver loop/.test(ev.message)) return;
+    log((ev.message || 'Erreur inconnue') + (f ? ' (' + f.split('/').pop() + ', ligne ' + ev.lineno + ':' + ev.colno + ')' : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (ev) {
+    var r = ev.reason;
+    log('Opération échouée : ' + (r && r.message ? r.message : String(r)));
+  });
+  function show() {
+    if (!document.body || !errors.length) return;
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'lyd-err';
+      box.setAttribute('aria-live', 'assertive');
+      box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;max-height:60vh;overflow:auto;background:#fff;color:#111;border:2px solid #b3261e;padding:14px 16px;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;text-align:left;box-shadow:0 8px 30px rgba(0,0,0,.35)';
+      document.body.appendChild(box);
+    }
+    var btn = 'margin:0 8px 0 0;padding:7px 14px;border:1px solid #111;background:#fff;color:#111;font:inherit;cursor:pointer';
+    box.style.display = 'block';
+    box.innerHTML = '<strong style="color:#b3261e">Une erreur empêche cette page de fonctionner correctement.</strong><br>Faites une capture de ce cadre et envoyez-la à l\'équipe Live Y Dream.' +
+      '<pre style="white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:10px;background:#f4f4f4;color:#111;font:12px/1.45 Consolas,Menlo,monospace"></pre>' +
+      '<button type="button" style="' + btn + '">Copier le détail</button><button type="button" style="' + btn + '">Fermer</button>';
+    var pre = box.querySelector('pre'), b = box.querySelectorAll('button');
+    pre.textContent = errors.join('\n') + '\n\nPage : ' + location.href + '\nNavigateur : ' + navigator.userAgent + '\nHeure : ' + new Date().toString();
+    b[0].onclick = function () {
+      function copied() { b[0].textContent = 'Copié'; }
+      function select() {
+        var r = document.createRange(), s = window.getSelection();
+        r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r);
+        try { if (document.execCommand('copy')) copied(); } catch (e) {}
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(pre.textContent).then(copied, select); else select();
+    };
+    b[1].onclick = function () { box.style.display = 'none'; };
+  }
+  /* La page est jugée construite quand CHECK existe et se voit ; sinon on le signale, même sans erreur */
+  function check(late) {
+    if (done || (!late && window.LYD_WAIT)) return;
+    var el = document.querySelector(CHECK), hidden = !!el && !el.getClientRects().length;
+    if (late && el && !hidden && !errors.length) return;
+    done = true;
+    if (!el) log(late ? "Après 20 secondes, la page n'est toujours pas construite (« " + CHECK + ' » absent).' : "La page ne s'est pas construite (« " + CHECK + ' » absent).');
+    else if (hidden) log('La page est construite mais cachée (« ' + CHECK + " » masqué). Un bloqueur de publicités en est sans doute la cause : désactivez-le pour ce site.");
+    show();
+  }
+  window.LYD_CHECK = function () { check(false); };
+  window.addEventListener('load', function () { setTimeout(function () { check(false); }, 1500); });
+  setTimeout(function () { check(true); }, 20000);
+})();
+</script>
+<title>Mentions légales - Live Y Dream</title>
+<meta name="description" content="Mentions légales du site Live Y Dream : éditeur, hébergement et propriété intellectuelle.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div data-lyd="header"></div>
+
+<main>
+  <section class="dk phero" style="padding-bottom:70px">
+    <div class="w">
+      <span class="k">Informations</span>
+      <h1>Mentions légales</h1>
+      <p class="crumb"><a href="index.html">Accueil</a> / Mentions légales</p>
+    </div>
+  </section>
+
+  <section class="sec" style="padding:70px 0 90px">
+    <div class="w">
+      <div class="prose legal">
+        <h2>Éditeur du site</h2>
+        <p><strong>Live Y Dream</strong>, agence de communication.<br>
+        Adresse : <span id="lg-addr">177 Rue HDN, Hédzranawoé, Lomé, Togo - non loin de STEA</span><br>
+        Téléphone : <span id="lg-tel"><a href="tel:+22870087777">+228 70 08 77 77</a></span><br>
+        E-mail : <a class="lg-mail" href="mailto:contact@liveydream.com">contact@liveydream.com</a></p>
+
+        <h2>Hébergement</h2>
+        <p>Le site est hébergé par <strong>Vercel Inc.</strong>, 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis (vercel.com).<br>
+        Les contenus du site et les messages envoyés par les formulaires sont enregistrés chez <strong>Supabase Inc.</strong> (supabase.com).</p>
+
+        <h2>Propriété intellectuelle</h2>
+        <p>Les textes, visuels, logos et réalisations présentés sur ce site appartiennent à Live Y Dream ou à ses clients. Toute reproduction, même partielle, sans autorisation écrite est interdite. Les logos des marques citées restent la propriété de leurs titulaires.</p>
+
+        <h2>Responsabilité</h2>
+        <p>Live Y Dream veille à l'exactitude des informations publiées, sans pouvoir garantir qu'elles soient complètes ou à jour en permanence. Les liens vers d'autres sites sont fournis à titre d'information : Live Y Dream n'est pas responsable de leur contenu.</p>
+
+        <h2>Données personnelles</h2>
+        <p>L'utilisation des informations que vous nous transmettez est expliquée dans notre <a href="confidentialite.html">politique de confidentialité</a>.</p>
+        <p class="legal-date">Dernière mise à jour : 11 novembre 2026</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-lyd="footer"></div>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/cms.js"></script>
+<script>
+CMS.ready(function () {
+  var s = CMS.get('settings'), c = CMS.get('contact'), e = CMS.esc;
+  CMS.mount('mentions-legales.html');
+  var fill = function (id, html) { var el = document.getElementById(id); if (el && html) el.innerHTML = html; };
+  var mail = (c.emails || [])[0] || s.email;
+  fill('lg-addr', (c.address || []).map(e).join(', '));
+  fill('lg-tel', (c.phones || [s.phone]).filter(Boolean).map(function (p) { return '<a href="tel:' + e(p.replace(/\s/g, '')) + '">' + e(p) + '</a>'; }).join(' · '));
+  document.querySelectorAll('.lg-mail').forEach(function (a) { if (mail) { a.href = 'mailto:' + mail; a.textContent = mail; } });
+});
+</script>
+</body>
+</html>

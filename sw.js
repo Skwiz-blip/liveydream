@@ -5,7 +5,7 @@ importScripts('sw-version.js');
 var BUILD = self.LYD_BUILD || 'dev';
 var CORE_CACHE = 'lyd-core-' + BUILD, IMG_CACHE = 'lyd-images', MAX_IMAGES = 150;
 var CORE = ['./', 'index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html',
-  'css/global.css', 'css/pages.css', 'js/config.js', 'js/db.js', 'js/cms.js'];
+  'mentions-legales.html', 'confidentialite.html', 'images/logo-lyd-blanc.png', 'css/global.css', 'css/pages.css', 'js/config.js', 'js/db.js', 'js/cms.js'];
 
 self.addEventListener('install', function (ev) {
   ev.waitUntil(caches.open(CORE_CACHE).then(function (c) {

@@ -67,6 +67,9 @@
 </script>
 <title>Live Y Dream - Agence de communication à Lomé</title>
 <meta name="description" content="Agence de communication à Lomé depuis 2013, 4,6/5 sur Google : communication, influence, vidéo, identité, événementiel et régie publicitaire.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
@@ -194,12 +197,15 @@ CMS.ready(function () {
   /* Défilement continu : la liste est doublée pour une boucle sans coupure */
   var logoItems = CMS.get('clients').map(function (l) {
     var c = typeof l === 'string' ? { name: '', img: l } : l;
-    return '<div class="lg">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.name) + '" loading="lazy" decoding="async">' : '<span>' + e(c.name) + '</span>') + '</div>';
+    return '<div class="lg' + (CMS.src(c.img) ? ' im' : '') + '">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.name) + '" loading="lazy" decoding="async">' : '<span>' + e(c.name) + '</span>') + '</div>';
   }).join('');
   $('logos').innerHTML = logoItems + logoItems.replace(/class="lg"/g, 'class="lg" aria-hidden="true"');
 
   $('testi').innerHTML = CMS.get('testimonials').map(function (t) {
-    return '<div class="tc"><div class="stars">★★★★★</div><p>' + e(t.q) + '</p><div><strong>' + e(t.n) + '</strong><span>' + e(t.o) + '</span></div></div>';
+    var photo = CMS.src(t.img);
+    return '<div class="tc"><div class="stars">★★★★★</div><p>' + e(t.q) + '</p><div class="tc-who">' +
+      (photo ? '<img src="' + e(photo) + '" alt="' + e(t.n) + '" width="44" height="44" loading="lazy" decoding="async">' : '') +
+      '<div><strong>' + e(t.n) + '</strong><span>' + e(t.o) + '</span></div></div></div>';
   }).join('');
 
   var c = s.cta;

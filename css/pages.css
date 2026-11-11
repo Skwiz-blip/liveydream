@@ -1169,3 +1169,10 @@
   .cm.reply{margin-left:20px}
 }
 .fm .btn:disabled{opacity:.6;cursor:wait}
+/* Mentions légales et confidentialité */
+.legal{max-width:760px}
+.legal h2:first-child{margin-top:0}
+.legal p{font-size:15px}
+.legal p:first-child{font-size:16px}
+.legal a{text-decoration:underline;text-underline-offset:3px}
+.legal-date{margin-top:44px;font-size:13px!important;color:var(--mute)!important}
