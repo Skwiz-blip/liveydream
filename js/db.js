@@ -176,6 +176,27 @@
     },
     update: function (table, filter, patch) { return call('PATCH', '/rest/v1/' + table + '?' + filter, patch, { prefer: 'return=minimal' }); },
     remove: function (table, filter) { return call('DELETE', '/rest/v1/' + table + '?' + filter, undefined, { prefer: 'return=minimal' }); },
+    /* Fichiers (Supabase Storage). Dépôt anonyme dans un dossier autorisé, puis adresse du fichier.
+       Le fichier n'est pas public : seul un membre de l'équipe connecté obtient un lien de lecture (signedUrl). */
+    upload: function (bucket, path, file) {
+      if (!BASE || !KEY) return Promise.reject(new Error('Base de données non configurée.'));
+      var url = BASE + '/storage/v1/object/' + bucket + '/' + path.split('/').map(encodeURIComponent).join('/');
+      return fetch(url, { method: 'POST', headers: { apikey: KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' }, body: file }).then(function (r) {
+        if (r.ok) return url;
+        return r.text().then(function (t) {
+          var e = new Error(r.status === 413 ? 'Fichier trop lourd.' : r.status === 415 || /mime/i.test(t) ? 'Type de fichier refusé.' : 'Envoi du fichier impossible (' + r.status + ').');
+          e.status = r.status;
+          throw e;
+        });
+      }, function () { throw new Error('Connexion impossible : le fichier n\'a pas été envoyé.'); });
+    },
+    signedUrl: function (bucket, path, seconds) {
+      return call('POST', '/storage/v1/object/sign/' + bucket + '/' + path.split('/').map(encodeURIComponent).join('/'), { expiresIn: seconds || 300 }).then(function (r) {
+        var u = r && (r.signedURL || r.signedUrl);
+        if (!u) throw new Error('Lien du fichier indisponible.');
+        return BASE + '/storage/v1' + u;
+      });
+    },
     inList: function (values) { return 'in.(' + values.map(function (v) { return encodeURIComponent(q(v)); }).join(',') + ')'; },
     eq: function (v) { return 'eq.' + encodeURIComponent(v); }
   };

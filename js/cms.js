@@ -442,6 +442,7 @@
      L'admin les charge toujours (LYD_NEED_MEDIA) : sa publication recalcule la Médiathèque à partir d'elles. */
   function mediaNeeded(data) {
     /* L'admin (son adresse, ou le dossier admin/ en local) charge toujours la Médiathèque, même avec un ancien boot.js */
+    if (window.LYD_NEED_MEDIA === false) return false; // page de connexion de l'admin : rien à publier
     if (window.LYD_NEED_MEDIA || ADMIN_ORIGINS.indexOf(location.origin) > -1 || /\/admin\//.test(location.pathname)) return true;
     if (typeof CMS.isPreview === 'function' && CMS.isPreview()) return true;
     var files = window.LYD_MEDIA || {}, need = false;
@@ -583,6 +584,15 @@
   } catch (e) {}
   function visit() { try { return JSON.parse(sessionStorage.getItem(VISIT)) || {}; } catch (e) { return {}; } }
   /* Réponses à « Comment nous avez-vous connus ? » : fixes, pour que les chiffres restent comparables d'un mois à l'autre */
+  /* Catégories (filtres) des campagnes, dans l'ordre d'affichage sur la page Campagnes et dans l'admin */
+  CMS.CAMPAIGN_FILTERS = ['Campagne 360', 'Spot vidéo', 'Campagne digitale', 'Événementiel', 'Projet développé', 'Campagne ads',
+    'Magazine & print', 'Documentaire', 'Photo culinaire', 'Influence'];
+  /* Filtres réellement utilisés : la liste ci-dessus, plus les anciens encore portés par une campagne */
+  CMS.campaignFilters = function (list) {
+    var used = {};
+    (list || []).forEach(function (c) { if (c && c.f) used[c.f] = 1; });
+    return CMS.CAMPAIGN_FILTERS.concat(Object.keys(used).filter(function (f) { return CMS.CAMPAIGN_FILTERS.indexOf(f) < 0; }));
+  };
   CMS.SOURCES = ['Recherche Google', 'Google Maps', 'Facebook ou Instagram', 'LinkedIn', 'TikTok', 'Recommandation', 'Plaquette ou QR code', 'Événement LYD', 'Presse', 'Autre'];
   /* Tant que database/migration-sources.sql n'a pas été exécuté, la demande part sans sa source */
   function insertForm(table, row, data) {

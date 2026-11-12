@@ -256,10 +256,10 @@ CMS.ready(function () {
   var camps = CMS.published(CMS.get('campaigns')).filter(function (x) { return (m.camps || []).indexOf(x.id) > -1; });
   if (camps.length) {
     $('m-cases').innerHTML = camps.map(function (x) {
-      var anchor = String(x.client || '').toLowerCase().replace(/\s+/g, '-');
+      var anchor = x.id || CMS.slugify(x.t || x.client);
       return '<a class="mt-case" href="campagnes.html#' + e(anchor) + '"><div class="im ph-box">' + CMS.ph(x.img, x.cat, x.t) + '</div>' +
         '<p class="mt-case-k">' + e(x.cat) + (x.year ? ' · ' + e(x.year) : '') + '</p><h3>' + e(x.t) + '</h3><p>' + e(cut(x.d, 170)) + '</p>' +
-        (x.res && x.res.length ? '<div class="mt-res">' + x.res.slice(0, 3).map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div>' : '') +
+        ((x.res || []).filter(function (r) { return r && (r[0] || r[1]); }).length ? '<div class="mt-res">' + x.res.filter(function (r) { return r && (r[0] || r[1]); }).slice(0, 3).map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div>' : '') +
         '</a>';
     }).join('');
     $('m-cases-s').hidden = false;

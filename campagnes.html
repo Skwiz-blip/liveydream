@@ -117,8 +117,14 @@
 CMS.ready(function () {
   var e = CMS.esc, $ = function (id) { return document.getElementById(id); };
   var camps = CMS.published(CMS.get('campaigns'));
-  var slug = function (c) { return c.client.toLowerCase().replace(/\s+/g, '-'); };
-  var FILTERS = [['', 'Tout voir'], ['Digital', 'Digital'], ['Vidéo & Photo', 'Vidéo & Photo'], ['Événementiel', 'Événementiel'], ['Identité', 'Identité']];
+  /* Résultats réellement remplis (les lignes vides de l'admin ne s'affichent pas) */
+  var res = function (c) { return (c.res || []).filter(function (r) { return r && (String(r[0] || '').trim() || String(r[1] || '').trim()); }); };
+  /* Ancre de chaque campagne : son identifiant (un même client peut avoir plusieurs campagnes) */
+  var slug = function (c) { return c.id || CMS.slugify(c.t || c.client); };
+  /* Filtres : seulement les catégories qui ont au moins une campagne publiée */
+  var FILTERS = [['', 'Tout voir']].concat(CMS.campaignFilters(camps).filter(function (f) {
+    return camps.some(function (c) { return c.f === f; });
+  }).map(function (f) { return [f, f]; }));
   var current = '';
 
   CMS.mount('campagnes.html');
@@ -130,8 +136,8 @@ CMS.ready(function () {
       '<h3>' + e(c.t) + '</h3><p class="by">' + e(c.client) + (c.year ? ' · ' + e(c.year) : '') + '</p>' +
       '<p class="ds">' + e(c.d) + '</p>' +
       '<div class="tags">' + c.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div>' +
-      (c.res && c.res.length ? '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
-      c.res.map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div></div>' : '') +
+      (res(c).length ? '<div class="rs"><p class="rt">Résultats obtenus</p><div class="rs-g">' +
+      res(c).map(function (r) { return '<div><b>' + e(r[0]) + '</b><span>' + e(r[1]) + '</span></div>'; }).join('') + '</div></div>' : '') +
       '<a class="sim" href="' + CMS.contactUrl('Stratégie Digitale Complète', '&projet=' + encodeURIComponent(c.t)) + '">Je veux un projet similaire →</a></article>';
   }
 
