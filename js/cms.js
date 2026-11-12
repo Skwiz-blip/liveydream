@@ -470,11 +470,30 @@
       });
     }).then(function (data) {
       setPublished(data);
-      try { localStorage.setItem(PUB_CACHE, JSON.stringify(data)); } catch (e) {
-        try { localStorage.removeItem(PUB_CACHE); } catch (x) {} // copie trop grosse : pas de copie plutôt qu'une copie périmée
+      if (window.LYD_NO_CACHE) {
+        /* Admin : il relit toujours la base, une copie ne ferait que remplir le navigateur */
+        try { localStorage.removeItem(PUB_CACHE); } catch (e) {}
+        CMS.pruneMedia();
+      } else {
+        try { localStorage.setItem(PUB_CACHE, JSON.stringify(data)); } catch (e) {
+          try { localStorage.removeItem(PUB_CACHE); } catch (x) {} // copie trop grosse : pas de copie plutôt qu'une copie périmée
+        }
       }
       return data;
     });
+  };
+  /* Images importées dans l'admin : une fois en ligne (même fichier, même nom, même description), la copie
+     gardée dans le navigateur est inutile et retirée. Les images pas encore en ligne restent, elles. */
+  CMS.pruneMedia = function () {
+    var pub = PUB.media || {}, own;
+    try { own = JSON.parse(store().getItem(MEDIA_KEY)) || []; } catch (e) { return; }
+    var keep = own.filter(function (m) {
+      var p = pub[m.id];
+      return !(p && p.src === m.src && (p.name || '') === (m.name || '') && (p.alt || '') === (m.alt || ''));
+    });
+    if (keep.length === own.length) return;
+    try { store().setItem(MEDIA_KEY, JSON.stringify(keep)); } catch (e) {}
+    mediaCache = null;
   };
   CMS.ready = function (fn) { if (isReady) fn(); else readyFns.push(fn); };
   function start() {
@@ -657,8 +676,7 @@
     var s = CMS.get('settings'), sv = CMS.get('services');
     var titles = sv.map(function (x) { return x.t; });
     var svc = sv.map(function (x, i) { return '<li><a href="' + (CMS.metierFor(x.t) || 'services.html#s' + (i + 1)) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
-      CMS.metiers().filter(function (m) { return titles.indexOf(m.svc) < 0; }).map(function (m) { return '<li><a href="' + CMS.metierUrl(m) + '">' + esc(m.k || m.h1) + '</a></li>'; }).join('') +
-      '<li><a href="services.html#tarifs">Abonnement PME</a></li>';
+      CMS.metiers().filter(function (m) { return titles.indexOf(m.svc) < 0; }).map(function (m) { return '<li><a href="' + CMS.metierUrl(m) + '">' + esc(m.k || m.h1) + '</a></li>'; }).join('');
     return '<footer class="ft dk" data-lyd="footer"><div class="w">' +
       '<div class="ft-g">' +
       '<div>' + CMS.logo(s) + '<p>' + esc(s.baseline) + '</p></div>' +

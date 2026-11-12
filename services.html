@@ -103,15 +103,6 @@
 
   <section class="sec" style="padding-top:70px"><div class="w" id="svc-detail"></div></section>
 
-  <section class="sec gy tarifs" id="tarifs">
-    <div class="w">
-      <p class="k" data-t="svc.tarifK">Service phare</p>
-      <h2 class="h2" data-t="svc.tarifT">Offres digitales</h2>
-      <p class="intro" style="margin-top:12px" data-t="svc.tarifP">Contrat de 3 mois minimum. Prix mensuels affichés.</p>
-      <div class="plans" id="plans"></div>
-    </div>
-  </section>
-
   <section class="sec">
     <div class="w">
       <p class="k" data-t="svc.stepsK">Comment ça marche</p>
@@ -152,11 +143,7 @@ CMS.ready(function () {
     return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
       '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
       '<a class="more" href="#s' + (i + 1) + '">Voir le détail →</a></div>';
-  }).join('') +
-  (function () {
-    var p = CMS.get('plan');
-    return '<div class="promo"><div><p class="k">' + e(p.k) + '</p><h3>' + e(p.t) + '</h3><p>' + e(p.d) + '</p><a class="btn" href="#tarifs">' + e(p.cta) + '</a></div><div class="price">' + e(p.price) + '</div></div>';
-  })();
+  }).join('');
 
   $('svc-detail').innerHTML = sv.map(function (x, i) {
     var n = '0' + (i + 1);
@@ -168,14 +155,6 @@ CMS.ready(function () {
       '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' +
       '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a>' +
       (CMS.metierFor(x.t) ? ' <a class="btn ob" href="' + CMS.metierFor(x.t) + '">Tout savoir sur ce service →</a>' : '') + '</div></article>';
-  }).join('');
-
-  $('plans').innerHTML = CMS.get('plans').map(function (p) {
-    var pro = !!p.badge;
-    return '<div class="pl' + (pro ? ' pro' : '') + '">' + (pro ? '<span class="bd">' + e(p.badge) + '</span>' : '') +
-      '<h4>' + e(p.name) + '</h4><div class="pr">' + e(p.price) + '</div><div class="pe">' + e(p.per) + '</div>' +
-      '<ul>' + p.features.map(function (f) { return '<li>' + e(f) + '</li>'; }).join('') + '</ul>' +
-      '<a class="btn' + (pro ? '' : ' b') + '" href="' + CMS.contactUrl('Abonnement PME', '&plan=' + encodeURIComponent(p.name)) + '">' + e(p.cta) + '</a></div>';
   }).join('');
 
   $('steps').innerHTML = CMS.get('process').map(function (p, i) {

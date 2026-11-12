@@ -187,7 +187,7 @@ CMS.ready(function () {
 
   var pl = CMS.get('plan');
   $('plan').innerHTML = '<div><p class="k">' + e(pl.k) + '</p><h3>' + e(pl.t) + '</h3><p>' + e(pl.d) + '</p>' +
-    '<a class="btn" href="services.html#tarifs">' + e(pl.cta) + '</a></div><div class="price">' + e(pl.price) + '</div>';
+    '<a class="btn" href="' + CMS.contactUrl('Abonnement PME') + '">' + e(pl.cta) + '</a></div><div class="price">' + e(pl.price) + '</div>';
 
   $('camps').innerHTML = CMS.published(CMS.get('campaigns')).slice(0, 4).map(function (c) {
     return '<a class="camp" href="campagnes.html#' + encodeURIComponent(c.client.toLowerCase().replace(/\s+/g, '-')) + '"><div class="ph">' + (CMS.src(c.img) ? '<img src="' + e(CMS.src(c.img)) + '" alt="' + e(c.t) + '" loading="lazy" decoding="async">' : e(c.client)) + '</div>' +
