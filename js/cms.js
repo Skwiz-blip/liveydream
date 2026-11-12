@@ -449,6 +449,7 @@
     (JSON.stringify(data).match(/media:[a-z0-9]+/gi) || []).forEach(function (ref) { if (!files[ref.slice(6)]) need = true; });
     return need;
   }
+  CMS.mediaReady = Promise.resolve();
   CMS.loadMedia = function () {
     if (typeof window.LYD_MEDIA_LOADER === 'function') return window.LYD_MEDIA_LOADER();
     return DB.select('site_content', 'select=key,value&key=eq.media&is_public=eq.true', { anon: true }).then(function (rows) {
@@ -461,6 +462,20 @@
     return DB.select('site_content', 'select=key,value&is_public=eq.true&key=neq.media', { anon: true }).then(function (rows) {
       var data = {};
       (rows || []).forEach(function (r) { if (r.key !== 'media') data[r.key] = r.value; });
+      /* Admin : la page s'affiche sans attendre la Médiathèque, chargée ensuite. Toute mise en ligne attend
+         CMS.mediaReady (sinon elle recalculerait la Médiathèque sans elle). Événement « lyd-media » quand elle arrive. */
+      if (window.LYD_NEED_MEDIA === 'later') {
+        CMS.mediaLoaded = false;
+        CMS.mediaReady = CMS.loadMedia().then(function (m) {
+          if (m) PUB.media = m;
+          mediaCache = null;
+          CMS.mediaLoaded = true;
+          try { document.dispatchEvent(new Event('lyd-media')); } catch (e) {}
+          return m;
+        });
+        CMS.mediaReady.catch(function () {});
+        return data;
+      }
       if (!mediaNeeded(data)) return data;
       return CMS.loadMedia().then(function (m) {
         if (m) data.media = m;

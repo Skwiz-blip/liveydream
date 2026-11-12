@@ -176,6 +176,45 @@
     },
     update: function (table, filter, patch) { return call('PATCH', '/rest/v1/' + table + '?' + filter, patch, { prefer: 'return=minimal' }); },
     remove: function (table, filter) { return call('DELETE', '/rest/v1/' + table + '?' + filter, undefined, { prefer: 'return=minimal' }); },
+    /* Temps réel (Supabase Realtime) : prévient dès qu'une ligne est ajoutée, modifiée ou supprimée dans ces tables.
+       Les droits de lecture de la base s'appliquent : chacun ne reçoit que ce qu'il a le droit de voir.
+       Se reconnecte tout seul après une coupure ; le jeton de connexion est renouvelé avant son expiration. */
+    live: function (tables, onChange) {
+      var ws = null, ref = 0, beat = null, renew = null, closed = false, wait = 1000, sentToken = null, topic = 'realtime:lyd-' + tables.join('-');
+      function send(msg) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); }
+      function connect() {
+        if (closed || !BASE || !KEY || !window.WebSocket) return;
+        token().then(function (tok) {
+          sentToken = tok;
+          ws = new WebSocket(BASE.replace(/^http/, 'ws') + '/realtime/v1/websocket?apikey=' + encodeURIComponent(KEY) + '&vsn=1.0.0');
+          ws.onopen = function () {
+            wait = 1000;
+            send({ topic: topic, event: 'phx_join', ref: String(++ref), join_ref: '1', payload: {
+              config: { broadcast: { self: false }, presence: { key: '' }, postgres_changes: tables.map(function (t) { return { event: '*', schema: 'public', table: t }; }) },
+              access_token: tok || undefined
+            } });
+            beat = setInterval(function () { send({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(++ref) }); }, 25000);
+            renew = setInterval(function () {
+              token().then(function (t) { if (t && t !== sentToken) { sentToken = t; send({ topic: topic, event: 'access_token', payload: { access_token: t }, ref: String(++ref) }); } });
+            }, 5 * 60000);
+          };
+          ws.onmessage = function (ev) {
+            var d;
+            try { d = JSON.parse(ev.data); } catch (e) { return; }
+            if (d.event === 'postgres_changes' && d.payload && d.payload.data) {
+              try { onChange(d.payload.data); } catch (e) { try { console.error('[LYD] Temps réel : ' + e.message); } catch (x) {} }
+            }
+          };
+          ws.onclose = function () {
+            clearInterval(beat); clearInterval(renew);
+            if (!closed) setTimeout(connect, wait = Math.min(wait * 2, 30000));
+          };
+          ws.onerror = function () { try { ws.close(); } catch (e) {} };
+        });
+      }
+      connect();
+      return { close: function () { closed = true; clearInterval(beat); clearInterval(renew); try { ws.close(); } catch (e) {} } };
+    },
     /* Fichiers (Supabase Storage). Dépôt anonyme dans un dossier autorisé, puis adresse du fichier.
        Le fichier n'est pas public : seul un membre de l'équipe connecté obtient un lien de lecture (signedUrl). */
     upload: function (bucket, path, file) {
