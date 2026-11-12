@@ -151,8 +151,8 @@ CMS.ready(function () {
       '<div class="sd-img ph-box">' + CMS.ph(x.img, x.imgLabel || x.cat, x.t) + '</div>' +
       '<div><p class="sd-k"><b>' + n + '</b>' + e(x.cat) + '</p><h3>' + e(x.t) + '</h3><p class="dsc">' + e(x.long) + '</p>' +
       '<div class="items">' + x.items.map(function (it) { return '<div><h5>' + e(it[0]) + '</h5><p>' + e(it[1]) + '</p></div>'; }).join('') + '</div>' +
-      (x.priceLabel ? '<p class="price-l">' + e(x.priceLabel) + '</p>' : '') +
-      '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' +
+      (x.price && x.priceLabel ? '<p class="price-l">' + e(x.priceLabel) + '</p>' : '') +
+      (x.price ? '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' : '') +
       '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a>' +
       (CMS.metierFor(x.t) ? ' <a class="btn ob" href="' + CMS.metierFor(x.t) + '">Tout savoir sur ce service →</a>' : '') + '</div></article>';
   }).join('');
