@@ -85,7 +85,6 @@
       <h1 data-t="camp.heroT">Nos réalisations</h1>
       <p class="sub" data-t="camp.heroP"><em>Des campagnes qui marquent. Des résultats qui parlent.</em></p>
       <p class="sub mu" data-t="camp.heroD">Depuis 2013, LYD accompagne marques, institutions et artistes togolais et africains avec des stratégies de communication créatives et mesurables. 10 ans de projets. Des dizaines de clients. Un seul objectif : vous faire briller.</p>
-      <p class="camp-count" id="camp-count"></p>
     </div>
   </section>
 
@@ -152,10 +151,6 @@ CMS.ready(function () {
     var list = camps.filter(function (c) { return !current || c.f === current; });
     $('camps').innerHTML = list.length ? list.map(card).join('') : '<p class="empty">Aucune campagne dans cette catégorie pour le moment.</p>';
   }
-
-  /* Compteur sous l'en-tête : campagnes publiées et catégories utilisées */
-  var nCats = FILTERS.length - 1;
-  $('camp-count').textContent = camps.length ? camps.length + ' campagne' + (camps.length > 1 ? 's' : '') + ' · ' + nCats + ' catégorie' + (nCats > 1 ? 's' : '') + ' · depuis 2013' : '';
 
   $('filters').addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-f]'); if (!b) return;
