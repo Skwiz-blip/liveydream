@@ -67,8 +67,8 @@
   setTimeout(function () { check(true); }, 20000);
 })();
 </script>
-<title>Services - Live Y Dream</title>
-<meta name="description" content="Community management, vidéo, graphisme, événementiel, régie et livestream : tous nos services de communication à Lomé, Togo.">
+<title>Nos Services — Live Y Dream Lomé</title>
+<meta name="description" content="Community management, vidéo, graphisme, activation, régie, livestream et campagnes ads : tous nos services de communication à Lomé, Togo.">
 <link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -142,18 +142,21 @@ CMS.ready(function () {
   $('svc-list').innerHTML = sv.map(function (x, i) {
     return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
       '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
-      '<a class="more" href="#s' + (i + 1) + '">Voir le détail →</a></div>';
+      '<a class="more" href="#' + CMS.svcAnchor(x, i) + '">Voir le détail →</a></div>';
   }).join('');
 
   $('svc-detail').innerHTML = sv.map(function (x, i) {
     var n = '0' + (i + 1);
-    return '<article class="sd' + (i % 2 ? ' rev' : '') + '" id="s' + (i + 1) + '">' +
+    /* Bouton : avec une ancre propre, le lien du formulaire la reprend (contact.html?besoin=livestream) */
+    var go = x.slug ? 'contact.html?besoin=' + encodeURIComponent(CMS.svcAnchor(x, i)) : CMS.contactUrl(x.need);
+    return '<article class="sd' + (i % 2 ? ' rev' : '') + '" id="' + CMS.svcAnchor(x, i) + '">' +
       '<div class="sd-img ph-box">' + CMS.ph(x.img, x.imgLabel || x.cat, x.t) + '</div>' +
-      '<div><p class="sd-k"><b>' + n + '</b>' + e(x.cat) + '</p><h3>' + e(x.t) + '</h3><p class="dsc">' + e(x.long) + '</p>' +
+      '<div><p class="sd-k"><b>' + n + '</b>' + e(x.cat) + '</p><h3>' + e(x.t) + '</h3>' +
+      (x.acc ? '<p class="acc">' + e(x.acc) + '</p>' : '') + '<p class="dsc">' + e(x.long) + '</p>' +
       '<div class="items">' + x.items.map(function (it) { return '<div><h5>' + e(it[0]) + '</h5><p>' + e(it[1]) + '</p></div>'; }).join('') + '</div>' +
       (x.price && x.priceLabel ? '<p class="price-l">' + e(x.priceLabel) + '</p>' : '') +
       (x.price ? '<p class="price-v' + (x.priceLabel ? '' : ' sm') + '">' + e(x.price) + '</p>' : '') +
-      '<a class="btn b" href="' + CMS.contactUrl(x.need) + '">' + e(x.cta) + '</a>' +
+      '<a class="btn b" href="' + go + '">' + e(x.cta) + '</a>' +
       (CMS.metierFor(x.t) ? ' <a class="btn ob" href="' + CMS.metierFor(x.t) + '">Tout savoir sur ce service →</a>' : '') + '</div></article>';
   }).join('');
 

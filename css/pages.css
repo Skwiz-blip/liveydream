@@ -1247,6 +1247,8 @@
   bottom:14px
 }
 
+/* Page Services : accroche sous le titre d'un service */
+.sd .acc{font-size:15px;font-weight:600;line-height:1.45;margin:-4px 0 12px;max-width:480px}
 /* Page Campagnes : accroche en italique, badge « LYD Original » */
 .cc .acc{font-size:13px;font-style:italic;font-weight:600;line-height:1.45;margin:0 0 10px}
 .cc .im{position:relative}

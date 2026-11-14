@@ -1,0 +1,695 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<title>Textes DEV — Livestream & Campagne Ads LYD</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: #e5e2db;
+    --fg: #1a1814;
+    --fg2: #5c5750;
+    --accent: #e85d04;
+    --accent2: #2563eb;
+    --tag-it: #dcfce7;
+    --tag-it-fg: #15803d;
+    --tag-seo: #fef9c3;
+    --tag-seo-fg: #854d0e;
+    --tag-copy: #ede9fe;
+    --tag-copy-fg: #6d28d9;
+    --code-bg: #1e1e2e;
+    --code-fg: #cdd6f4;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f0e0c;
+      --surface: #1a1916;
+      --border: #2d2b27;
+      --fg: #f0ede8;
+      --fg2: #9e9a93;
+      --tag-it: #052e16;
+      --tag-it-fg: #86efac;
+      --tag-seo: #1c1400;
+      --tag-seo-fg: #fde68a;
+      --tag-copy: #2e1065;
+      --tag-copy-fg: #c4b5fd;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f0e0c;
+    --surface: #1a1916;
+    --border: #2d2b27;
+    --fg: #f0ede8;
+    --fg2: #9e9a93;
+    --tag-it: #052e16;
+    --tag-it-fg: #86efac;
+    --tag-seo: #1c1400;
+    --tag-seo-fg: #fde68a;
+    --tag-copy: #2e1065;
+    --tag-copy-fg: #c4b5fd;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  html { scroll-behavior: smooth }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    padding-left: max(16px, env(safe-area-inset-left,0px));
+    padding-right: max(16px, env(safe-area-inset-right,0px));
+    padding-block: 0 48px;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    z-index: 100;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  nav a {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg2);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  nav a:hover, nav a.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* HEADER */
+  .hero {
+    padding: 36px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .hero h1 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--fg2); margin-top: 6px; font-size: 14px; }
+  .badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: .04em; text-transform: uppercase; }
+  .badge.it  { background: var(--tag-it);  color: var(--tag-it-fg); }
+  .badge.seo { background: var(--tag-seo); color: var(--tag-seo-fg); }
+  .badge.copy{ background: var(--tag-copy);color: var(--tag-copy-fg); }
+
+  /* SECTION */
+  section { margin-bottom: 48px; }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 15px; font-weight: 700; }
+  .section-sub { font-size: 12px; color: var(--fg2); font-weight: 500; }
+
+  /* FILE BADGE */
+  .file-pill {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  /* TEXT BLOCK */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .block-header {
+    background: var(--border);
+    padding: 8px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px; flex-wrap: wrap;
+  }
+  .block-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--fg2); }
+  .copy-btn {
+    font-size: 11px; font-weight: 600;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 4px;
+    padding: 3px 10px; cursor: pointer;
+    transition: opacity .15s;
+  }
+  .copy-btn:hover { opacity: .85; }
+  .copy-btn.done { background: var(--tag-it-fg); }
+  .block-body {
+    padding: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--fg);
+  }
+
+  /* NOTE */
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--fg2);
+    margin-bottom: 16px;
+  }
+  .note strong { color: var(--fg); }
+
+  /* FIELD */
+  .field-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .field {
+    flex: 1; min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .field-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--fg2); margin-bottom: 4px; }
+  .field-val { font-size: 13.5px; font-weight: 500; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; gap: 8px; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .section-title { font-size: 14px; }
+    .block-body { font-size: 12px; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
+<nav>
+  <a href="#services">Page Services</a>
+  <a href="#home">Homepage</a>
+  <a href="#footer">Footer</a>
+  <a href="#form">Formulaire</a>
+  <a href="#jsonld">JSON-LD</a>
+  <a href="#meta">Meta</a>
+  <a href="#sitemap">Sitemap</a>
+</nav>
+
+<div style="max-width:820px;margin:0 auto">
+
+<div class="hero">
+  <h1>Textes DEV — <span>Livestream & Campagne Ads</span></h1>
+  <p>Tous les textes à intégrer sur liveydream.com, page par page. Copiez-collez chaque bloc dans le fichier correspondant.</p>
+  <div class="badges">
+    <span class="badge it">IT — intégration HTML</span>
+    <span class="badge seo">SEO — meta + JSON-LD</span>
+    <span class="badge copy">Copywriting LYD</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     1. PAGE SERVICES — LIVESTREAM
+════════════════════════════════════════════════════════ -->
+<section id="services">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <div class="section-title">Page Services — 2 nouvelles cartes</div>
+      <div class="section-sub">services.html — ajouter après la carte "Production Vidéo & Photo"</div>
+    </div>
+  </div>
+
+  <span class="file-pill">services.html</span>
+
+  <div class="note">
+    <strong>Format attendu :</strong> chaque carte suit le même modèle que les 6 cartes existantes. Le dev doit répliquer la structure HTML d'une carte existante et y injecter ces textes.
+  </div>
+
+  <!-- LIVESTREAM CARD -->
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">Carte #7 — Livestream</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">ICÔNE SUGGÉRÉE : caméra / signal live (📡 ou SVG de caméra de diffusion)
+SLUG / ANCRE : #livestream
+
+— TITRE DE LA CARTE —
+Livestream & Diffusion Live
+
+— ACCROCHE (1 ligne sous le titre) —
+Votre événement vu par des milliers de personnes, en temps réel.
+
+— DESCRIPTION COURTE (2–3 lignes, visible sur la carte) —
+Conférences, lancements de produits, concerts, cérémonies : nous gérons
+toute la chaîne technique et éditoriale pour diffuser vos événements
+en direct sur Facebook, YouTube, Instagram et TikTok.
+
+— LISTE DES PRESTATIONS (bullets sur la carte ou page détail) —
+• Régie technique multi-caméras (jusqu'à 4 angles)
+• Diffusion simultanée multi-plateformes (Facebook Live, YouTube Live,
+  Instagram Live, TikTok Live)
+• Habillage graphique du stream (bandeau, overlays, titres)
+• Modération de l'audience en temps réel
+• Sous-titrage en direct (option)
+• Rediffusion et téléchargement du replay sous 24h
+• Rapport d'audience après l'événement
+
+— CTA PRINCIPAL —
+Demander un devis
+
+— URL DU CTA —
+/contact.html?besoin=livestream
+
+— STAT OU ACCROCHE SECONDAIRE (optionnel, si la carte affiche une stat) —
+Jusqu'à 10 000 viewers simultanés</div>
+  </div>
+
+  <!-- ADS CARD -->
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">Carte #8 — Campagne Ads</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">ICÔNE SUGGÉRÉE : graphique montant / ciblage (📊 ou SVG target)
+SLUG / ANCRE : #campagne-ads
+
+— TITRE DE LA CARTE —
+Campagne Publicitaire (Ads)
+
+— ACCROCHE (1 ligne sous le titre) —
+Chaque franc investi doit rapporter. Nous le garantissons.
+
+— DESCRIPTION COURTE (2–3 lignes, visible sur la carte) —
+Stratégie, création des visuels, ciblage et optimisation quotidienne :
+nous pilotons vos campagnes Meta Ads, Google Ads et TikTok Ads
+pour maximiser votre retour sur investissement en Afrique de l'Ouest.
+
+— LISTE DES PRESTATIONS (bullets sur la carte ou page détail) —
+• Audit et stratégie publicitaire (objectifs, audiences, budgets)
+• Meta Ads — Facebook & Instagram (trafic, leads, notoriété, e-commerce)
+• Google Ads — Search, Display & YouTube
+• TikTok Ads (awareness et génération de leads)
+• Création des visuels et vidéos pour les publicités
+• A/B testing des formats et des audiences
+• Suivi quotidien et optimisation des campagnes
+• Rapport mensuel détaillé (CPC, CPM, CPL, ROAS)
+
+— CTA PRINCIPAL —
+Demander un devis
+
+— URL DU CTA —
+/contact.html?besoin=campagne-ads
+
+— STAT OU ACCROCHE SECONDAIRE (optionnel) —
+ROI moyen constaté : ×3 sur le budget investi</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     2. PAGE D'ACCUEIL — SECTION SERVICES
+════════════════════════════════════════════════════════ -->
+<section id="home">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <div class="section-title">Page d'accueil — Section Services</div>
+      <div class="section-sub">index.html — ajouter 2 entrées dans la liste/grille des services</div>
+    </div>
+  </div>
+
+  <span class="file-pill">index.html</span>
+
+  <div class="note">
+    <strong>Contexte :</strong> la homepage affiche les services sous forme de liste ou grille courte. Ajouter les 2 nouveaux items avec le même format que les existants.
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">2 nouveaux items — section services homepage</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">— ITEM 1 —
+Titre : Livestream & Diffusion Live
+Description courte : Diffusion en direct sur toutes les plateformes,
+avec régie technique et habillage graphique professionnel.
+Lien : /services.html#livestream
+
+— ITEM 2 —
+Titre : Campagne Publicitaire (Ads)
+Description courte : Meta Ads, Google Ads, TikTok Ads :
+stratégie, création et optimisation pour maximiser votre ROI.
+Lien : /services.html#campagne-ads</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     3. FOOTER
+════════════════════════════════════════════════════════ -->
+<section id="footer">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <div class="section-title">Footer — Colonne Services</div>
+      <div class="section-sub">Toutes les pages (footer commun) — ajouter 2 liens</div>
+    </div>
+  </div>
+
+  <span class="file-pill">footer (commun à toutes les pages)</span>
+
+  <div class="note">
+    <strong>Footer actuel :</strong> Community Management · Production Vidéo & Photo · Conception Graphique · Activation de marque · Régie Publicitaire · Abonnement PME<br>
+    <strong>Ajouter à la suite :</strong>
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">2 nouveaux liens footer</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">Livestream & Diffusion Live → /services.html#livestream
+Campagne Publicitaire (Ads) → /services.html#campagne-ads</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     4. FORMULAIRE DE CONTACT — CHAMP BESOIN
+════════════════════════════════════════════════════════ -->
+<section id="form">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div>
+      <div class="section-title">Formulaire de contact — Champ "Besoin"</div>
+      <div class="section-sub">contact.html — ajouter 2 options dans le &lt;select name="besoin"&gt;</div>
+    </div>
+  </div>
+
+  <span class="file-pill">contact.html</span>
+
+  <div class="note">
+    <strong>Important :</strong> Le formulaire est actuellement en <strong>method="GET"</strong>. À corriger en <strong>method="POST"</strong> en même temps. Les données de formulaire ne doivent pas apparaître dans l'URL.
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">HTML — Nouvelles &lt;option&gt; à ajouter dans le select</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">&lt;option value="livestream"&gt;Livestream &amp; Diffusion Live&lt;/option&gt;
+&lt;option value="campagne-ads"&gt;Campagne Publicitaire (Ads)&lt;/option&gt;</div>
+  </div>
+
+  <div class="note">
+    <strong>Position suggérée :</strong> après l'option "Production Vidéo & Photo", avant "Autre".<br>
+    <strong>Fix à faire en même temps :</strong> <code style="background:var(--border);padding:1px 5px;border-radius:3px">&lt;form method="get"&gt;</code> → <code style="background:var(--border);padding:1px 5px;border-radius:3px">&lt;form method="post"&gt;</code>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     5. JSON-LD — SCHEMA.ORG
+════════════════════════════════════════════════════════ -->
+<section id="jsonld">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div>
+      <div class="section-title">JSON-LD — Mise à jour schema.org</div>
+      <div class="section-sub">index.html — ajouter hasOfferCatalog dans le LocalBusiness existant</div>
+    </div>
+  </div>
+
+  <span class="file-pill">index.html — &lt;script type="application/ld+json"&gt;</span>
+
+  <div class="note">
+    <strong>Contexte :</strong> Le JSON-LD actuel est un <code>LocalBusiness</code> complet. Ajouter un champ <code>hasOfferCatalog</code> pour que Google affiche nos services en rich snippet. Coller le bloc ci-dessous à l'intérieur de l'objet JSON existant, avant la dernière accolade <code>}</code>.
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">JSON à insérer dans le LocalBusiness existant</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">"hasOfferCatalog": {
+  "@type": "OfferCatalog",
+  "name": "Services de communication",
+  "itemListElement": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Community Management",
+        "description": "Gestion de vos réseaux sociaux : création de contenu, modération et stratégie éditoriale."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Production Vidéo & Photo",
+        "description": "Production audiovisuelle professionnelle pour vos marques et campagnes en Afrique de l'Ouest."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Conception Graphique",
+        "description": "Identité visuelle, supports print et digital pour les marques africaines."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Activation de marque",
+        "description": "Événements, street marketing et expériences de marque au Togo et en Afrique de l'Ouest."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Régie Publicitaire",
+        "description": "Achat et planification média : presse, radio, affichage, digital au Togo."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Livestream & Diffusion Live",
+        "description": "Diffusion en direct multi-plateformes (Facebook, YouTube, Instagram, TikTok) avec régie technique, habillage graphique et modération d'audience."
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Campagne Publicitaire (Ads)",
+        "description": "Création et optimisation de campagnes Meta Ads, Google Ads et TikTok Ads pour maximiser le ROI des annonceurs en Afrique de l'Ouest."
+      }
+    }
+  ]
+}</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     6. META DESCRIPTION — PAGE SERVICES
+════════════════════════════════════════════════════════ -->
+<section id="meta">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div>
+      <div class="section-title">Meta description — Page Services</div>
+      <div class="section-sub">services.html — &lt;meta name="description"&gt; à mettre à jour</div>
+    </div>
+  </div>
+
+  <span class="file-pill">services.html</span>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">Ancienne meta — REMPLACER</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">Community management, production vidéo, conception graphique,
+activation de marque, régie publicitaire et abonnement PME :
+tous nos services de communication à Lomé.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">Nouvelle meta — INSÉRER (155 caractères)</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">Community management, vidéo, graphisme, activation, régie, livestream
+et campagnes ads : tous nos services de communication à Lomé, Togo.</div>
+  </div>
+
+  <div class="note">
+    <strong>Aussi mettre à jour le &lt;title&gt; de la page services si besoin :</strong><br>
+    Titre actuel probable : "Services — Live Y Dream"<br>
+    Titre suggéré : "Nos Services — Live Y Dream Lomé" (inchangé si déjà bon)
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     7. TWITTER CARD — CORRECTIF (bonus)
+════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div>
+      <div class="section-title">Twitter Card — Correctif (toutes les pages)</div>
+      <div class="section-sub">Bug détecté lors de l'audit — twitter:title/description/image manquants</div>
+    </div>
+  </div>
+
+  <span class="file-pill">Toutes les pages — &lt;head&gt;</span>
+
+  <div class="note">
+    <strong>Problème :</strong> <code>twitter:card="summary_large_image"</code> est présent mais les 3 autres balises manquent. X/Twitter affiche une carte vide. À corriger sur toutes les pages en même temps.
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">HTML à ajouter dans &lt;head&gt; de chaque page (après les og:*)</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">&lt;!-- Twitter Card (compléter les balises existantes) --&gt;
+&lt;meta name="twitter:title" content="[même valeur que og:title de la page]"&gt;
+&lt;meta name="twitter:description" content="[même valeur que og:description de la page]"&gt;
+&lt;meta name="twitter:image" content="[même valeur que og:image de la page]"&gt;
+
+&lt;!-- EXEMPLE pour la homepage --&gt;
+&lt;meta name="twitter:title" content="Live Y Dream - Agence de communication à Lomé"&gt;
+&lt;meta name="twitter:description" content="Agence de communication à Lomé depuis 2013,
+4,6/5 sur Google : communication, influence, vidéo, identité, événementiel et régie publicitaire."&gt;
+&lt;meta name="twitter:image" content="https://liveydream.com/media/mw3of6kq4emrea-7987996f.webp"&gt;</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     8. SITEMAP.XML
+════════════════════════════════════════════════════════ -->
+<section id="sitemap">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div>
+      <div class="section-title">Sitemap.xml</div>
+      <div class="section-sub">Pas de nouvelle URL à ajouter si les services sont sur services.html</div>
+    </div>
+  </div>
+
+  <span class="file-pill">sitemap.xml</span>
+
+  <div class="note">
+    <strong>Situation actuelle :</strong> Le sitemap est complet et correct. Les 2 nouveaux services seront sur <code>/services.html</code> (déjà dans le sitemap), donc <strong>aucune modification du sitemap n'est nécessaire</strong>.<br><br>
+    <strong>Si tu crées des pages dédiées</strong> (<code>/services/livestream/</code> et <code>/services/campagne-ads/</code> — recommandé pour le SEO long terme), ajouter ces 2 entrées :
+  </div>
+
+  <div class="block">
+    <div class="block-header">
+      <span class="block-label">Optionnel — si pages dédiées créées</span>
+      <button class="copy-btn" onclick="copyBlock(this)">Copier</button>
+    </div>
+    <div class="block-body">&lt;url&gt;
+  &lt;loc&gt;https://liveydream.com/services/livestream/&lt;/loc&gt;
+  &lt;lastmod&gt;2026-11-13&lt;/lastmod&gt;
+&lt;/url&gt;
+&lt;url&gt;
+  &lt;loc&gt;https://liveydream.com/services/campagne-ads/&lt;/loc&gt;
+  &lt;lastmod&gt;2026-11-13&lt;/lastmod&gt;
+&lt;/url&gt;</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CHECKLIST RÉCAPITULATIVE
+════════════════════════════════════════════════════════ -->
+<section>
+  <div class="section-header">
+    <div class="section-num">✓</div>
+    <div>
+      <div class="section-title">Checklist récapitulative pour le dev</div>
+      <div class="section-sub">Dans l'ordre de priorité</div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <ul class="checklist">
+      <li><span class="check-icon">1.</span> <div><strong>services.html</strong> — Ajouter les 2 cartes (Livestream + Campagne Ads) avec tous les textes section 1</div></li>
+      <li><span class="check-icon">2.</span> <div><strong>index.html</strong> — Ajouter les 2 items dans la section services homepage</div></li>
+      <li><span class="check-icon">3.</span> <div><strong>Footer commun</strong> — Ajouter les 2 liens de service</div></li>
+      <li><span class="check-icon">4.</span> <div><strong>contact.html</strong> — Ajouter les 2 options dans le select "besoin" <strong>+ corriger method="post"</strong></div></li>
+      <li><span class="check-icon">5.</span> <div><strong>index.html JSON-LD</strong> — Ajouter hasOfferCatalog avec les 7 services</div></li>
+      <li><span class="check-icon">6.</span> <div><strong>services.html meta</strong> — Remplacer la meta description</div></li>
+      <li><span class="check-icon">7.</span> <div><strong>Toutes les pages</strong> — Ajouter les 3 balises Twitter Card manquantes</div></li>
+      <li><span class="check-icon">8.</span> <div><strong>Google Search Console</strong> — Après mise en ligne : demander une re-indexation de services.html</div></li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<script>
+function copyBlock(btn) {
+  const body = btn.closest('.block').querySelector('.block-body');
+  navigator.clipboard.writeText(body.innerText).then(() => {
+    btn.textContent = '✓ Copié';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('done'); }, 2000);
+  }).catch(() => {
+    const range = document.createRange();
+    range.selectNodeContents(body);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    btn.textContent = 'Sélectionné';
+    setTimeout(() => { btn.textContent = 'Copier'; }, 2000);
+  });
+}
+
+// Nav active
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+});
+</script>
+
+</body></html>

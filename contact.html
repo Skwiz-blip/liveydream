@@ -150,7 +150,12 @@ CMS.ready(function () {
   fill('f-src', 'Choisissez une réponse', CMS.SOURCES);
   fill('f-bud', 'Fourchette de budget', c.budgets);
   
-  var need = CMS.qs('service'), plan = CMS.qs('plan'), projet = CMS.qs('projet');
+  var need = CMS.qs('service'), plan = CMS.qs('plan'), projet = CMS.qs('projet'), besoin = CMS.qs('besoin');
+  /* contact.html?besoin=livestream : l'ancre du service (Réglages > Services) désigne son besoin */
+  if (!need && besoin) {
+    var sv = CMS.get('services').filter(function (x, i) { return CMS.svcAnchor(x, i) === CMS.slugify(besoin); })[0];
+    need = sv ? sv.need : besoin;
+  }
   if (need && c.needs.indexOf(need) > -1) $('f-need').value = need;
   if (plan) $('f-msg').value = 'Je souhaite souscrire à l\'abonnement ' + plan + '.';
   else if (projet) $('f-msg').value = 'Je souhaite un projet similaire à : ' + projet + '.';

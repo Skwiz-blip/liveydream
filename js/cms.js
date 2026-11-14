@@ -300,6 +300,10 @@
     },
     contactUrl: function (need, extra) {
       return 'contact.html?service=' + encodeURIComponent(need || '') + (extra || '');
+    },
+    /* Ancre d'un service sur la page Services : la sienne (ex. « livestream »), sinon son numéro (s1, s2…) */
+    svcAnchor: function (x, i) {
+      return (x && x.slug && CMS.slugify(x.slug)) || 's' + (i + 1);
     }
   };
 
@@ -700,7 +704,7 @@
   CMS.footer = function () {
     var s = CMS.get('settings'), sv = CMS.get('services');
     var titles = sv.map(function (x) { return x.t; });
-    var svc = sv.map(function (x, i) { return '<li><a href="' + (CMS.metierFor(x.t) || 'services.html#s' + (i + 1)) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
+    var svc = sv.map(function (x, i) { return '<li><a href="' + (CMS.metierFor(x.t) || 'services.html#' + CMS.svcAnchor(x, i)) + '">' + esc(x.cat) + '</a></li>'; }).join('') +
       CMS.metiers().filter(function (m) { return titles.indexOf(m.svc) < 0; }).map(function (m) { return '<li><a href="' + CMS.metierUrl(m) + '">' + esc(m.k || m.h1) + '</a></li>'; }).join('');
     return '<footer class="ft dk" data-lyd="footer"><div class="w">' +
       '<div class="ft-g">' +

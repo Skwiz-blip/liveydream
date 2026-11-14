@@ -182,7 +182,7 @@ CMS.ready(function () {
   $('services').innerHTML = CMS.get('services').map(function (x, i) {
     return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
       '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
-      '<a class="more" href="' + (CMS.metierFor(x.t) || 'services.html#s' + (i + 1)) + '">En savoir plus →</a></div>';
+      '<a class="more" href="' + (CMS.metierFor(x.t) || 'services.html#' + CMS.svcAnchor(x, i)) + '">En savoir plus →</a></div>';
   }).join('');
 
   var pl = CMS.get('plan');

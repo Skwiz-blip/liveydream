@@ -36,6 +36,8 @@ const write = (rel, text) => {
   fs.writeFileSync(f, text);
 };
 const slugify = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+/* Même règle que CMS.svcAnchor (js/cms.js) : ancre propre du service, sinon s1, s2… */
+const svcAnchor = (x, i) => (x && x.slug && slugify(x.slug)) || 's' + (i + 1);
 const articleSlug = id => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(String(id || '')) ? String(id) : slugify(id);
 const published = list => (Array.isArray(list) ? list : []).filter(x => x && x.status !== 'brouillon');
 const xml = s => String(s).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
@@ -111,11 +113,13 @@ function business(data, image) {
     sameAs: (c.socials || []).map(x => cleanLink(x[1])).filter(Boolean)
   };
   if (!o.openingHoursSpecification.length) delete o.openingHoursSpecification;
-  /* Catalogue des services (repris de Réglages > Services) : Google peut les afficher sous la fiche de l'agence */
-  const svcs = (Array.isArray(data.services) ? data.services : []).filter(x => x && x.t);
+  /* Catalogue des services (repris de Réglages > Services) : Google peut les afficher sous la fiche de l'agence.
+     Nom court et « Description pour Google » du service s'ils sont remplis. */
+  const all = Array.isArray(data.services) ? data.services : [];
+  const svcs = all.map((x, i) => [x, i]).filter(([x]) => x && x.t);
   if (svcs.length) o.hasOfferCatalog = {
     '@type': 'OfferCatalog', name: 'Services de communication',
-    itemListElement: svcs.map((x, i) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: x.t, description: x.d || x.long || undefined, url: SITE + '/services.html#s' + (i + 1) } }))
+    itemListElement: svcs.map(([x, i]) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: x.cat || x.t, description: x.ld || x.d || x.long || undefined, url: SITE + '/services.html#' + svcAnchor(x, i) } }))
   };
   return o;
 }
