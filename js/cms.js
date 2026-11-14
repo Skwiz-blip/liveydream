@@ -600,8 +600,8 @@
   function visit() { try { return JSON.parse(sessionStorage.getItem(VISIT)) || {}; } catch (e) { return {}; } }
   /* Réponses à « Comment nous avez-vous connus ? » : fixes, pour que les chiffres restent comparables d'un mois à l'autre */
   /* Catégories (filtres) des campagnes, dans l'ordre d'affichage sur la page Campagnes et dans l'admin */
-  CMS.CAMPAIGN_FILTERS = ['Campagne 360', 'Spot vidéo', 'Campagne digitale', 'Événementiel', 'Projet développé', 'Campagne ads',
-    'Magazine & print', 'Documentaire', 'Photo culinaire', 'Influence'];
+  CMS.CAMPAIGN_FILTERS = ['Campagne 360°', 'Campagne Production', 'Campagne Digitale', 'Event', 'Projet Développé', 'Campagne Ads',
+    'Magazine & Print', 'Documentaire', 'Photo Culinaire', "Campagne d'Influence"];
   /* Filtres réellement utilisés : la liste ci-dessus, plus les anciens encore portés par une campagne */
   CMS.campaignFilters = function (list) {
     var used = {};

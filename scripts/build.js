@@ -111,6 +111,12 @@ function business(data, image) {
     sameAs: (c.socials || []).map(x => cleanLink(x[1])).filter(Boolean)
   };
   if (!o.openingHoursSpecification.length) delete o.openingHoursSpecification;
+  /* Catalogue des services (repris de Réglages > Services) : Google peut les afficher sous la fiche de l'agence */
+  const svcs = (Array.isArray(data.services) ? data.services : []).filter(x => x && x.t);
+  if (svcs.length) o.hasOfferCatalog = {
+    '@type': 'OfferCatalog', name: 'Services de communication',
+    itemListElement: svcs.map((x, i) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: x.t, description: x.d || x.long || undefined, url: SITE + '/services.html#s' + (i + 1) } }))
+  };
   return o;
 }
 const org = () => ({ '@type': 'Organization', '@id': SITE + '/#agence', name: NAME, url: SITE + '/', logo: SITE + '/images/logo-lyd-noir.png' });
