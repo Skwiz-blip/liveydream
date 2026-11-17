@@ -14,6 +14,14 @@ const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
 
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'dist');
+/* Variables du fichier .env en local (sur Vercel, elles viennent des réglages du projet) */
+const envFile = path.join(root, '.env');
+if (fs.existsSync(envFile)) {
+  fs.readFileSync(envFile, 'utf8').split(/\r?\n/).forEach(line => {
+    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/.exec(line);
+    if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2');
+  });
+}
 /* Adresse publique du site (adresses de référence, sitemap, aperçus) ; le site de test liveydream.vercel.app reste caché à Google (vercel.json) */
 const SITE = (process.env.SITE_URL || 'https://liveydream.com').replace(/\/+$/, '');
 const NAME = 'Live Y Dream';
@@ -286,6 +294,52 @@ function plan(data) {
   return list;
 }
 
+/* IndexNow : prévient Bing (et Yandex, Seznam, Naver…) des pages nouvelles, modifiées ou retirées, dès la mise en ligne,
+   au lieu d'attendre leur prochain passage. Bing alimente aussi Copilot et la recherche de ChatGPT.
+   - Clé : variable INDEXNOW_KEY (.env en local, réglages Vercel), publiée dans /<clé>.txt comme le veut le protocole.
+   - /indexnow.json garde l'empreinte de chaque page déjà signalée : la mise en ligne suivante ne signale que ce qui a changé.
+   - Envoi seulement pour la version de production sur Vercel (VERCEL_ENV=production) ; un envoi raté est refait la fois suivante. */
+async function indexNow(urls, hashes) {
+  const key = String(process.env.INDEXNOW_KEY || '').trim();
+  if (!key) { console.log('  IndexNow : pas de clé (INDEXNOW_KEY), aucune page signalée'); return; }
+  if (!/^[a-zA-Z0-9-]{8,128}$/.test(key)) { console.warn('  IndexNow : ATTENTION, clé invalide (8 à 128 lettres, chiffres ou tirets)'); return; }
+  write(key + '.txt', key);
+  let before = {};
+  try {
+    const r = await fetch(SITE + '/indexnow.json', { headers: { 'Cache-Control': 'no-cache' }, signal: AbortSignal.timeout(15000) });
+    if (r.ok) before = await r.json();
+  } catch (e) { /* première fois, ou site injoignable : tout est signalé */ }
+  if (!before || typeof before !== 'object' || Array.isArray(before)) before = {};
+  const changed = urls.filter(u => hashes[u] && before[u] !== hashes[u]);
+  const removed = Object.keys(before).filter(u => urls.indexOf(u) < 0);
+  const list = changed.concat(removed).slice(0, 10000);
+  let sent = false;
+  if (process.env.VERCEL_ENV !== 'production') {
+    console.log('  IndexNow : ' + list.length + ' page(s) à signaler, seulement lors de la mise en ligne de production');
+  } else if (!list.length) {
+    console.log('  IndexNow : aucune page nouvelle ou modifiée');
+  } else {
+    try {
+      const r = await fetch('https://api.indexnow.org/indexnow', {
+        method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8' }, signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({ host: new URL(SITE).host, key: key, keyLocation: SITE + '/' + key + '.txt', urlList: list })
+      });
+      sent = r.status === 200 || r.status === 202;
+      console.log('  IndexNow : ' + list.length + ' page(s) ' + (sent ? 'signalée(s), réponse ' + r.status : 'refusée(s), réponse ' + r.status + ' : nouvel essai à la prochaine mise en ligne'));
+    } catch (e) {
+      console.warn('  IndexNow : envoi impossible (' + e.message + ') : nouvel essai à la prochaine mise en ligne');
+    }
+  }
+  /* Empreintes publiées : celles des pages déjà signalées ; les autres gardent l'ancienne, pour être signalées la fois suivante */
+  const keep = {};
+  urls.forEach(u => {
+    if (hashes[u] && (sent || before[u] === hashes[u])) keep[u] = hashes[u];
+    else if (before[u]) keep[u] = before[u];
+  });
+  if (!sent) removed.forEach(u => { keep[u] = before[u]; });
+  write('indexnow.json', JSON.stringify(keep));
+}
+
 function sitemap(pages) {
   const urls = pages.map(p => '  <url><loc>' + xml(p.url) + '</loc>' + (/^\d{4}-\d{2}-\d{2}$/.test(p.lastmod || '') ? '<lastmod>' + p.lastmod + '</lastmod>' : '') + '</url>');
   write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.join('\n') + '\n</urlset>\n');
@@ -307,13 +361,14 @@ function sitemap(pages) {
   fs.appendFileSync(path.join(out, 'js', 'config.js'), '/* Images enregistrées en fichiers par scripts/build.js */\nwindow.LYD_MEDIA = ' + JSON.stringify(files) + ';\n');
   const stored = Object.keys(files).filter(id => files[id].u).length;
   console.log('  ' + (Object.keys(files).length - stored) + ' images enregistrées dans media/, ' + stored + ' dans le stockage en ligne');
-  const pages = plan(content.data), done = [];
+  const pages = plan(content.data), done = [], hashes = {};
   let failed = 0;
   for (const page of pages) {
     try {
       const r = await render(page, content, files);
       write(page.out, r.html);
       done.push(page);
+      hashes[page.url] = crypto.createHash('sha1').update(r.html).digest('hex').slice(0, 16);
       if (!page.kind) console.log('  ' + page.out + ' : ' + r.words + ' mots, ' + Math.round(r.html.length / 1024) + ' Ko');
     } catch (e) {
       failed++;
@@ -323,6 +378,8 @@ function sitemap(pages) {
   }
   const n = k => done.filter(p => p.kind === k).length;
   console.log('  ' + n('metier') + ' pages métiers, ' + n('article') + ' pages d\'articles, ' + n('offer') + ' pages d\'offres');
-  sitemap(pages.filter(p => !p.kind || done.indexOf(p) > -1));
+  const listed = pages.filter(p => !p.kind || done.indexOf(p) > -1);
+  sitemap(listed);
+  await indexNow(listed.map(p => p.url), hashes);
   console.log('build.js : dist/ prêt' + (failed ? ', ' + failed + ' problème(s)' : '') + ' (' + SITE + ')');
 })().catch(e => { console.error('build.js : ' + e.message); process.exit(1); });
