@@ -3,7 +3,9 @@
   "private": true,
   "description": "Site public Live Y Dream",
   "scripts": {
-    "build": "node scripts/config.js && node scripts/build.js"
+    "build": "node scripts/config.js && node scripts/build.js",
+    "envoyer": "node scripts/envoyer.js site",
+    "envoyer:admin": "node scripts/envoyer.js admin"
   },
   "engines": {
     "node": "24.x"

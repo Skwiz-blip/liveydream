@@ -3,7 +3,7 @@
    - une page par article (/blog/<adresse>/) et par offre d'emploi (/carrieres/<adresse>/) ;
    - les images de la Médiathèque en vrais fichiers (dist/media/) au lieu de texte dans les pages ;
    - adresse de référence, aperçu pour les réseaux sociaux, fiche d'identité pour Google (JSON-LD) ;
-   - sitemap.xml et robots.txt.
+   - sitemap.xml, robots.txt et .htaccess (serveur Apache d'Afrique.host, repris de vercel.json).
    Une fois la page ouverte, le JavaScript la remet à jour comme avant.
    Usage : node scripts/config.js && node scripts/build.js   (adresse du site : variable SITE_URL)
    Si la base ne répond pas, les pages sont copiées telles quelles : le site marche, Google voit moins de contenu. */
@@ -28,7 +28,8 @@ const NAME = 'Live Y Dream';
 const PAGES = ['index.html', 'services.html', 'campagnes.html', 'blog.html', 'a-propos.html', 'carrieres.html', 'contact.html', 'mentions-legales.html', 'confidentialite.html'];
 /* Jamais mis en ligne : outils, base, documents de travail, secrets */
 const SKIP = new Set(['.git', '.github', '.dist', '.gitignore', '.vercelignore', '.vscode', '.claude', 'admin', 'database', 'dist', 'node_modules', 'ref', 'scripts', 'package.json', 'package-lock.json', 'vercel.json']);
-const skipFile = name => SKIP.has(name) || /\.(docx?|md)$/i.test(name) || /^\.env/.test(name);
+/* Noms avec espaces = documents de travail (« Textes DEV — … .html ») : jamais publiés */
+const skipFile = name => SKIP.has(name) || /\.(docx?|md)$/i.test(name) || /^\.env/.test(name) || /\s/.test(name);
 
 function copyDir(from, to) {
   fs.mkdirSync(to, { recursive: true });
@@ -298,7 +299,7 @@ function plan(data) {
    au lieu d'attendre leur prochain passage. Bing alimente aussi Copilot et la recherche de ChatGPT.
    - Clé : variable INDEXNOW_KEY (.env en local, réglages Vercel), publiée dans /<clé>.txt comme le veut le protocole.
    - /indexnow.json garde l'empreinte de chaque page déjà signalée : la mise en ligne suivante ne signale que ce qui a changé.
-   - Envoi seulement pour la version de production sur Vercel (VERCEL_ENV=production) ; un envoi raté est refait la fois suivante. */
+   - Envoi seulement pour la version de production (VERCEL_ENV ou DEPLOY_ENV = production) ; un envoi raté est refait la fois suivante. */
 async function indexNow(urls, hashes) {
   const key = String(process.env.INDEXNOW_KEY || '').trim();
   if (!key) { console.log('  IndexNow : pas de clé (INDEXNOW_KEY), aucune page signalée'); return; }
@@ -314,7 +315,9 @@ async function indexNow(urls, hashes) {
   const removed = Object.keys(before).filter(u => urls.indexOf(u) < 0);
   const list = changed.concat(removed).slice(0, 10000);
   let sent = false;
-  if (process.env.VERCEL_ENV !== 'production') {
+  /* Production : Vercel (VERCEL_ENV), ou tout autre hébergement qui le précise (DEPLOY_ENV=production, ex. GitHub Actions) */
+  const production = process.env.VERCEL_ENV === 'production' || process.env.DEPLOY_ENV === 'production';
+  if (!production) {
     console.log('  IndexNow : ' + list.length + ' page(s) à signaler, seulement lors de la mise en ligne de production');
   } else if (!list.length) {
     console.log('  IndexNow : aucune page nouvelle ou modifiée');
@@ -349,6 +352,8 @@ function sitemap(pages) {
 (async () => {
   fs.rmSync(out, { recursive: true, force: true });
   copyDir(root, out);
+  /* Hébergement Apache (Afrique.host) : redirections et en-têtes de vercel.json */
+  write('.htaccess', require('./htaccess')(JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'))));
   let content;
   try {
     content = await readContent();
