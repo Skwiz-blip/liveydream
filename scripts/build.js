@@ -59,13 +59,17 @@ async function readContent() {
   return { url, rows, data };
 }
 
-/* Images de la Médiathèque (texte base64 dans la base) → fichiers dist/media/<id>-<empreinte>.<ext>.
+/* Images de la Médiathèque :
+   - fichier du stockage en ligne (Supabase Storage, espace public « media ») : son adresse est notée telle quelle ;
+   - ancienne image en texte base64 dans la base : enregistrée en fichier dist/media/<id>-<empreinte>.<ext>.
    Le nom change si l'image change : les navigateurs peuvent la garder longtemps. */
 const EXT = { 'image/webp': 'webp', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/gif': 'gif', 'image/avif': 'avif', 'image/svg+xml': 'svg' };
+const STORED = /^https:\/\/[^/]+\/storage\/v1\/object\/public\/media\/[^?#]+$/i;
 function writeMedia(media) {
   const files = {};
   Object.keys(media || {}).forEach(id => {
     const src = String((media[id] || {}).src || '');
+    if (STORED.test(src) && /^[\w-]+$/.test(id)) { files[id] = { u: src }; return; }
     const m = /^data:(image\/[a-z0-9.+-]+);base64,(.*)$/i.exec(src);
     if (!m || !EXT[m[1].toLowerCase()] || !/^[\w-]+$/.test(id)) return;
     const bytes = Buffer.from(m[2], 'base64');
@@ -301,7 +305,8 @@ function sitemap(pages) {
   }
   const files = writeMedia(content.data.media);
   fs.appendFileSync(path.join(out, 'js', 'config.js'), '/* Images enregistrées en fichiers par scripts/build.js */\nwindow.LYD_MEDIA = ' + JSON.stringify(files) + ';\n');
-  console.log('  ' + Object.keys(files).length + ' images enregistrées dans media/');
+  const stored = Object.keys(files).filter(id => files[id].u).length;
+  console.log('  ' + (Object.keys(files).length - stored) + ' images enregistrées dans media/, ' + stored + ' dans le stockage en ligne');
   const pages = plan(content.data), done = [];
   let failed = 0;
   for (const page of pages) {

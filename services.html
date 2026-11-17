@@ -97,10 +97,6 @@
     </div>
   </section>
 
-  <section class="sec gy" style="padding:70px 0 40px">
-    <div class="w" id="svc-list"></div>
-  </section>
-
   <section class="sec" style="padding-top:70px"><div class="w" id="svc-detail"></div></section>
 
   <section class="sec">
@@ -137,12 +133,6 @@ CMS.ready(function () {
 
   $('philo-st').innerHTML = [s.stats[1], s.stats[0], s.stats[2]].filter(Boolean).map(function (x) {
     return '<div><div class="n">' + e(x.n) + '</div><div class="l">' + e(x.l) + '</div></div>';
-  }).join('');
-
-  $('svc-list').innerHTML = sv.map(function (x, i) {
-    return '<div class="svc"><div class="num">0' + (i + 1) + '</div><h3>' + e(x.t) + '</h3>' +
-      '<div class="d"><p>' + e(x.d) + '</p><div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + e(t) + '</span>'; }).join('') + '</div></div>' +
-      '<a class="more" href="#' + CMS.svcAnchor(x, i) + '">Voir le détail →</a></div>';
   }).join('');
 
   $('svc-detail').innerHTML = sv.map(function (x, i) {

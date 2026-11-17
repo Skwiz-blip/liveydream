@@ -73,14 +73,15 @@
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (tok) headers.Authorization = 'Bearer ' + tok;
       if (o.prefer) headers.Prefer = o.prefer;
-      var stop = window.AbortController ? new AbortController() : null, late = false;
-      var timer = stop && setTimeout(function () { late = true; stop.abort(); }, 12000);
+      /* Délai d'abandon : 12 secondes, ou plus pour les gros échanges (o.timeout) */
+      var limit = o.timeout || 12000, stop = window.AbortController ? new AbortController() : null, late = false;
+      var timer = stop && setTimeout(function () { late = true; stop.abort(); }, limit);
       return fetch(BASE + path, { method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body), signal: stop ? stop.signal : undefined }).then(function (r) {
         clearTimeout(timer);
         return r;
       }, function () {
         clearTimeout(timer);
-        var err = new Error(late ? 'La base ne répond pas (plus de 12 secondes) : vérifiez la connexion internet, puis réessayez.' : 'Connexion à la base impossible : vérifiez la connexion internet, puis réessayez.');
+        var err = new Error(late ? 'La base ne répond pas (plus de ' + Math.round(limit / 1000) + ' secondes) : vérifiez la connexion internet, puis réessayez.' : 'Connexion à la base impossible : vérifiez la connexion internet, puis réessayez.');
         err.status = 0;
         err.code = 'network';
         throw err;
@@ -215,19 +216,40 @@
       connect();
       return { close: function () { closed = true; clearInterval(beat); clearInterval(renew); try { ws.close(); } catch (e) {} } };
     },
-    /* Fichiers (Supabase Storage). Dépôt anonyme dans un dossier autorisé, puis adresse du fichier.
-       Le fichier n'est pas public : seul un membre de l'équipe connecté obtient un lien de lecture (signedUrl). */
-    upload: function (bucket, path, file) {
+    /* Fichiers (Supabase Storage), puis adresse du fichier.
+       Sans option : dépôt anonyme dans un dossier autorisé (CV des candidats, espace privé « cv » : seul un membre
+       de l'équipe connecté obtient un lien de lecture, voir signedUrl).
+       o.auth : dépôt par un membre de l'équipe connecté (images de la Médiathèque, espace public « media »).
+       o.cache : durée de garde dans les navigateurs, en secondes. Erreur e.code = 'exists' si le fichier existe déjà. */
+    upload: function (bucket, path, file, o) {
+      o = o || {};
       if (!BASE || !KEY) return Promise.reject(new Error('Base de données non configurée.'));
       var url = BASE + '/storage/v1/object/' + bucket + '/' + path.split('/').map(encodeURIComponent).join('/');
-      return fetch(url, { method: 'POST', headers: { apikey: KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' }, body: file }).then(function (r) {
-        if (r.ok) return url;
-        return r.text().then(function (t) {
-          var e = new Error(r.status === 413 ? 'Fichier trop lourd.' : r.status === 415 || /mime/i.test(t) ? 'Type de fichier refusé.' : 'Envoi du fichier impossible (' + r.status + ').');
-          e.status = r.status;
-          throw e;
+      return (o.auth ? token() : Promise.resolve(null)).then(function (tok) {
+        var headers = { apikey: KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' };
+        if (tok) headers.Authorization = 'Bearer ' + tok;
+        if (o.cache) headers['cache-control'] = 'max-age=' + o.cache;
+        var stop = window.AbortController ? new AbortController() : null, late = false;
+        var timer = stop && setTimeout(function () { late = true; stop.abort(); }, o.timeout || 120000);
+        return fetch(url, { method: 'POST', headers: headers, body: file, signal: stop ? stop.signal : undefined }).then(function (r) {
+          clearTimeout(timer);
+          if (r.ok) return url;
+          return r.text().then(function (t) {
+            var exists = /duplicate|already exists/i.test(t);
+            var e = new Error(exists ? 'Ce fichier existe déjà.' : r.status === 413 || /too large|maximum allowed size/i.test(t) ? 'Fichier trop lourd.' : r.status === 415 || /mime/i.test(t) ? 'Type de fichier refusé.' : r.status === 401 || r.status === 403 || /row-level security|unauthorized/i.test(t) ? "Votre compte ne permet pas d'envoyer ce fichier : reconnectez-vous." : 'Envoi du fichier impossible (' + r.status + ').');
+            e.status = r.status;
+            if (exists) e.code = 'exists';
+            throw e;
+          });
+        }, function () {
+          clearTimeout(timer);
+          throw new Error(late ? "Envoi du fichier trop long : vérifiez la connexion internet, puis réessayez." : "Connexion impossible : le fichier n'a pas été envoyé.");
         });
-      }, function () { throw new Error('Connexion impossible : le fichier n\'a pas été envoyé.'); });
+      });
+    },
+    /* Adresse publique d'un fichier d'un espace public (ex. images de la Médiathèque) */
+    publicUrl: function (bucket, path) {
+      return BASE + '/storage/v1/object/public/' + bucket + '/' + String(path || '').split('/').map(encodeURIComponent).join('/');
     },
     signedUrl: function (bucket, path, seconds) {
       return call('POST', '/storage/v1/object/sign/' + bucket + '/' + path.split('/').map(encodeURIComponent).join('/'), { expiresIn: seconds || 300 }).then(function (r) {

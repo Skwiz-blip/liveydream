@@ -252,10 +252,12 @@
       var m = /^media:(.+)$/.exec(u);
       if (m) {
         var it = CMS.mediaItem(m[1]);
-        /* Image enregistrée en fichier lors de la mise en ligne (scripts/build.js) : utilisée si la Médiathèque
-           n'a pas été chargée (cas normal sur le site), ou si l'image n'a pas changé depuis */
+        /* Image connue lors de la mise en ligne (scripts/build.js) : utilisée si la Médiathèque n'a pas été chargée
+           (cas normal sur le site), ou si l'image n'a pas changé depuis.
+           file.u : adresse du fichier dans le stockage en ligne ; file.f : ancienne image (texte) enregistrée en fichier. */
         var file = (window.LYD_MEDIA || {})[m[1]];
-        if (file && (!it || file.n === String(it.src).length)) return CMS.root + file.f;
+        if (file && file.u && (!it || file.u === it.src)) return file.u;
+        if (file && file.f && (!it || file.n === String(it.src).length)) return CMS.root + file.f;
         return it ? it.src : '';
       }
       if (/^(data:|https?:|\/)/i.test(u)) return u;
@@ -441,8 +443,10 @@
     try { store().setItem(KEY, JSON.stringify(saved)); } catch (e) {}
   };
   CMS.hasDraft = function (key) { return load()[key] !== undefined; };
-  /* Images de la Médiathèque : plusieurs Mo de texte. Elles ne sont téléchargées que si la page en a besoin :
-     sur le site en ligne, elles existent déjà en fichiers (window.LYD_MEDIA, écrit par scripts/build.js).
+  /* Médiathèque : adresse, nom et description de chaque image (fichiers du stockage en ligne « media » ;
+     les plus anciennes étaient du texte de plusieurs Mo, transféré dans le stockage par l'admin).
+     Elle n'est lue que si la page en a besoin : sur le site, les images connues lors de la mise en ligne
+     sont déjà dans window.LYD_MEDIA (écrit par scripts/build.js).
      L'admin les charge toujours (LYD_NEED_MEDIA) : sa publication recalcule la Médiathèque à partir d'elles. */
   function mediaNeeded(data) {
     /* L'admin (son adresse, ou le dossier admin/ en local) charge toujours la Médiathèque, même avec un ancien boot.js */
@@ -456,7 +460,7 @@
   CMS.mediaReady = Promise.resolve();
   CMS.loadMedia = function () {
     if (typeof window.LYD_MEDIA_LOADER === 'function') return window.LYD_MEDIA_LOADER();
-    return DB.select('site_content', 'select=key,value&key=eq.media&is_public=eq.true', { anon: true }).then(function (rows) {
+    return DB.select('site_content', 'select=key,value&key=eq.media&is_public=eq.true', { anon: true, timeout: 90000 }).then(function (rows) {
       var r = (rows || []).filter(function (x) { return x.key === 'media'; })[0];
       return r ? r.value : null;
     });

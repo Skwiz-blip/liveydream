@@ -1226,25 +1226,20 @@
   .mt-items{grid-template-columns:1fr}
 }
 
-/* Cartes à image (campagnes, articles, réalisations) : la case prend la forme de la photo, affichée entière, sans recadrage */
-.cc .im:has(img),.ar .im:has(img),.feat .im:has(img),.mt-case .im:has(img),.mod-c .im:has(img){
+/* Cartes à image (campagnes, articles, réalisations) : taille fixe, photo recadrée (règles d'origine plus haut).
+   Détail d'un article : la photo s'affiche entière, sans recadrage (au plus 80 % de la hauteur de l'écran) */
+.acover:has(img){
   aspect-ratio:auto;
   padding:0;
-  display:block;
-  position:relative;
-  background:none
+  display:block
 }
-.cc .im:has(img) img,.ar .im:has(img) img,.feat .im:has(img) img,.mt-case .im:has(img) img,.mod-c .im:has(img) img{
+.acover:has(img) img{
   position:static;
   display:block;
   width:100%;
   height:auto;
+  max-height:80vh;
   object-fit:contain
-}
-.cc .im:has(img) .ph-l,.ar .im:has(img) .ph-l,.feat .im:has(img) .ph-l,.mt-case .im:has(img) .ph-l{
-  position:absolute;
-  left:14px;
-  bottom:14px
 }
 
 /* Page Services : accroche sous le titre d'un service */
