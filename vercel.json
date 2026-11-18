@@ -598,22 +598,6 @@
         {
           "type": "header",
           "key": "origin",
-          "value": "https://admin.liveydream.com"
-        }
-      ],
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://admin.liveydream.com"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "origin",
           "value": "https://liveydream-admin.vercel.app"
         }
       ],
