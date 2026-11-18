@@ -1,6 +1,6 @@
 /* Envoi à la main sur le serveur Afrique.host (StackCP), depuis cet ordinateur.
    Usage : npm run envoyer         → construit le site (dist/) puis l'envoie dans public_html/
-           npm run envoyer:admin   → envoie le dossier admin/ dans admin.liveydream.com/
+           npm run envoyer:admin   → envoie le dossier admin/ dans central.liveydream.com/
    Besoin : la clé SSH ~/.ssh/liveydream_stackcp, autorisée dans StackCP > Accès SSH
             (autre emplacement : DEPLOY_SSH_KEY_PATH dans .env) ; tar et ssh, fournis avec Windows 10 et 11.
    Sur le serveur, les fichiers arrivent dans un dossier temporaire, puis rsync met à jour le dossier en ligne :
@@ -23,7 +23,7 @@ const SERVER = 'liveydream.com@ssh.us.stackcp.com';
 const KEY = process.env.DEPLOY_SSH_KEY_PATH || path.join(os.homedir(), '.ssh', 'liveydream_stackcp');
 const admin = process.argv[2] === 'admin';
 const from = path.join(root, admin ? 'admin' : 'dist');
-const target = admin ? 'admin.liveydream.com' : 'public_html';
+const target = admin ? 'central.liveydream.com' : 'public_html';
 const tmp = admin ? '.envoi-admin' : '.envoi-site';
 const win = process.platform === 'win32';
 const TAR = win && fs.existsSync('C:\\Windows\\System32\\tar.exe') ? 'C:\\Windows\\System32\\tar.exe' : 'tar';
@@ -57,5 +57,5 @@ tar.on('close', code => { tarCode = code; });
 ssh.on('close', code => {
   if (tarCode) stop('archive impossible (tar, code ' + tarCode + ').');
   if (code) stop('envoi échoué (ssh, code ' + code + '). Rien n\'a été remplacé si l\'erreur est survenue avant rsync.');
-  console.log('Envoyé : https://' + (admin ? 'admin.liveydream.com' : 'liveydream.com') + '/');
+  console.log('Envoyé : https://' + (admin ? 'central.liveydream.com' : 'liveydream.com') + '/');
 });

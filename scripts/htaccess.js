@@ -4,7 +4,7 @@
 
 const HOST = 'liveydream.com';
 /* Adresses de l'administration : elles seules peuvent lire les pages du site depuis le navigateur (réglages SEO de l'admin) */
-const ADMIN_ORIGINS = ['https://admin.liveydream.com', 'https://liveydream-admin.vercel.app'];
+const ADMIN_ORIGINS = ['https://central.liveydream.com', 'https://admin.liveydream.com', 'https://liveydream-admin.vercel.app'];
 
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

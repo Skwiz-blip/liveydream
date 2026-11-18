@@ -582,6 +582,22 @@
         {
           "type": "header",
           "key": "origin",
+          "value": "https://central.liveydream.com"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://central.liveydream.com"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "origin",
           "value": "https://admin.liveydream.com"
         }
       ],

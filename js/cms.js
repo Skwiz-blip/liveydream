@@ -2,7 +2,7 @@
 (function () {
   var KEY = 'lyd_cms_v1', MEDIA_KEY = 'lyd_media_v1', PREVIEW_KEY = 'lyd_preview';
   /* Seule l'administration, à cette adresse, peut ouvrir un aperçu des changements non publiés */
-  var ADMIN_ORIGINS = ['https://admin.liveydream.com', 'https://liveydream-admin.vercel.app'];
+  var ADMIN_ORIGINS = ['https://central.liveydream.com', 'https://admin.liveydream.com', 'https://liveydream-admin.vercel.app'];
   /* Version en ligne : la table site_content de la base, chargée avant que la page s'affiche */
   var PUB = {}, PUB_CACHE = 'lyd_pub_cache', readyFns = [], isReady = false;
 
