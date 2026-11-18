@@ -179,7 +179,16 @@ img{
 .hero{
   padding:72px 0 150px
 }
-.hero h1{
+/* H1 = mot-clé de la page (feuille de route SEO) ; le slogan garde le grand format */
+.hero .hero-k{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  line-height:1.4;
+  margin:0 0 18px
+}
+.hero .hero-t{
   font-size:clamp(44px,5.6vw,80px);
   line-height:1.02;
   letter-spacing:-.035em;
@@ -257,6 +266,14 @@ img{
 }
 .diag-head .btn{
   margin-top:18px
+}
+.diag-head .diag-more{
+  margin-top:14px;
+  font-size:14px;
+  opacity:.8
+}
+.diag-head .diag-more a{
+  text-decoration:underline
 }
 .g4{
   display:grid;

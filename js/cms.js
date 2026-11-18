@@ -467,7 +467,8 @@
   };
   CMS.loadPublished = function () {
     if (!window.DB) return Promise.reject(new Error('Base de données indisponible.'));
-    return DB.select('site_content', 'select=key,value&is_public=eq.true&key=neq.media', { anon: true }).then(function (rows) {
+    /* Admin : jusqu'à 60 s (plus de 200 Ko d'articles sur une connexion lente) ; site : 12 s, puis copie gardée dans le navigateur */
+    return DB.select('site_content', 'select=key,value&is_public=eq.true&key=neq.media', { anon: true, timeout: window.LYD_NO_CACHE ? 60000 : 12000 }).then(function (rows) {
       var data = {};
       (rows || []).forEach(function (r) { if (r.key !== 'media') data[r.key] = r.value; });
       /* Admin : la page s'affiche sans attendre la Médiathèque, chargée ensuite. Toute mise en ligne attend
